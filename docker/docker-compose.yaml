@@ -1,0 +1,20 @@
+version: "3.3"
+
+services:
+  book_postgres:
+    build: ./postgres/
+    restart: always
+    env_file:
+      - config/db.env
+    ports:
+      - "5432:5432"
+    networks:
+      - book_network
+
+#  booking_api:
+#    image: maven:3.8.1-openjdk-11
+#
+
+networks:
+  book_network:
+    driver: bridge
