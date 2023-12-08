@@ -3,9 +3,9 @@ package com.victorsaez.bookingapi.controllers;
 import com.victorsaez.bookingapi.config.JwtUtil;
 import com.victorsaez.bookingapi.dto.requests.AuthenticationRequest;
 import com.victorsaez.bookingapi.dto.responses.AuthenticationResponse;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,6 +16,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@Tag(name = "Authentication")
+@RequestMapping(value = "/authentication", produces = "application/json")
 public class AuthenticationController {
 
     private AuthenticationManager authenticationManager;
@@ -28,12 +30,10 @@ public class AuthenticationController {
         this.jwtUtil = jwtUtil;
     }
 
-    @ApiOperation(value = "Authenticate user", notes = "Authenticate user")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", value = "JWT", required = true, dataType = "string", paramType = "header")
-    })
-    @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
-    public ResponseEntity<AuthenticationResponse> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
+
+    @RequestMapping(value = "/login", method = RequestMethod.POST)
+    @Operation(summary = "Logs in a user.")
+    public ResponseEntity<AuthenticationResponse> login(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), authenticationRequest.getPassword())
