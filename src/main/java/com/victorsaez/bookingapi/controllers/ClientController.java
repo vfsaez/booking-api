@@ -8,6 +8,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -28,8 +30,8 @@ public class ClientController {
     @Operation(summary = "Returns all clients in database.")
     @ApiResponse(responseCode =  "200", description = "OK")
     @GetMapping
-    public ResponseEntity<List<ClientDTO>> findAll() {
-        return ResponseEntity.ok().body(service.findAll());
+    public ResponseEntity<List<ClientDTO>> findAll(@AuthenticationPrincipal UserDetails currentUserDetails) {
+        return ResponseEntity.ok().body(service.findAll(currentUserDetails));
     }
 
     @GetMapping(value = "/{id}")
@@ -38,8 +40,8 @@ public class ClientController {
             @ApiResponse(responseCode =  "200", description = "OK."),
             @ApiResponse(responseCode =  "404", description = "Client not found.")
     })
-    public ResponseEntity<ClientDTO> findById(@PathVariable Long id) {
-        return ResponseEntity.ok().body(service.findById(id));
+    public ResponseEntity<ClientDTO> findById(@PathVariable Long id, @AuthenticationPrincipal UserDetails currentUserDetails) {
+        return ResponseEntity.ok().body(service.findById(id, currentUserDetails));
     }
 
     @PostMapping
@@ -48,8 +50,8 @@ public class ClientController {
             @ApiResponse(responseCode =  "201", description = "Client created with success."),
             @ApiResponse(responseCode =  "400", description = "Invalid request.")
     })
-    public ResponseEntity<ClientDTO> insert(@RequestBody @Valid ClientDTO client) {
-        var createdClient = service.insert(client);
+    public ResponseEntity<ClientDTO> insert(@RequestBody @Valid ClientDTO client, @AuthenticationPrincipal UserDetails currentUserDetails) {
+        var createdClient = service.insert(client, currentUserDetails);
         var uri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("{/id}")
@@ -67,9 +69,9 @@ public class ClientController {
             @ApiResponse(responseCode = "404", description = "Client not found."),
             @ApiResponse(responseCode = "400", description = "Invalid request.")
     })
-    public ResponseEntity<ClientDTO> update(@PathVariable Long id, @RequestBody @Valid ClientDTO client) {
+    public ResponseEntity<ClientDTO> update(@PathVariable Long id, @RequestBody @Valid ClientDTO client, @AuthenticationPrincipal UserDetails currentUserDetails) {
         client.setId(id);
-        var updatedClient = service.update(client);
+        var updatedClient = service.update(client, currentUserDetails);
         return ResponseEntity.ok().body(updatedClient);
     }
 
@@ -80,8 +82,8 @@ public class ClientController {
             @ApiResponse(responseCode =  "404", description = "Client not found."),
             @ApiResponse(responseCode =  "400", description = "Invalid request.")
     })
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        service.delete(id);
+    public ResponseEntity<Void> delete(@PathVariable Long id, @AuthenticationPrincipal UserDetails currentUserDetails) {
+        service.delete(id, currentUserDetails);
         return ResponseEntity.noContent().build();
     }
 }

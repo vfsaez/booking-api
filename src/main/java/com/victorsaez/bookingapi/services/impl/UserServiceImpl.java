@@ -6,6 +6,7 @@ import com.victorsaez.bookingapi.exceptions.UserNotFoundException;
 import com.victorsaez.bookingapi.mappers.UserMapper;
 import com.victorsaez.bookingapi.repositories.UserRepository;
 import com.victorsaez.bookingapi.services.UserService;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +24,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDTO> findAll() {
+    public List<UserDTO> findAll(UserDetails currentUserDetails) {
         List<User> users = repository.findAll();
         return users.stream()
                 .map(userMapper::userToUserDTO)
@@ -31,13 +32,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO findById(Long id) throws UserNotFoundException {
+    public UserDTO findById(Long id, UserDetails currentUserDetails) throws UserNotFoundException {
         return userMapper.userToUserDTO(repository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id)));
     }
 
     @Override
-    public UserDTO insert(UserDTO dto) {
+    public UserDTO insert(UserDTO dto, UserDetails currentUserDetails) {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         String hashedPassword = passwordEncoder.encode("user");
         dto.setPassword(hashedPassword);
@@ -46,7 +47,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO update(UserDTO dto) {
+    public UserDTO update(UserDTO dto, UserDetails currentUserDetails) {
         User existingUser = repository.findById(dto.getId())
                 .orElseThrow(() -> new UserNotFoundException(dto.getId()));
 
@@ -59,8 +60,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void delete(Long id) {
-        this.findById(id);
+    public void delete(Long id, UserDetails currentUserDetails) {
+        this.findById(id, currentUserDetails);
         repository.deleteById(id);
     }
 }

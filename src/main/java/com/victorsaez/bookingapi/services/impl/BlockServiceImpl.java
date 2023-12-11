@@ -18,6 +18,7 @@ import com.victorsaez.bookingapi.repositories.PropertyRepository;
 import com.victorsaez.bookingapi.repositories.BookingRepository;
 import com.victorsaez.bookingapi.services.BlockService;
 import com.victorsaez.bookingapi.services.PropertyService;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -39,7 +40,7 @@ public class BlockServiceImpl implements BlockService {
     }
 
     @Override
-    public List<BlockDTO> findAll() {
+    public List<BlockDTO> findAll(UserDetails currentUserDetails) {
         List<Block> blocks = repository.findAll();
         return blocks.stream()
                 .map(blockMapper::blockToBlockDTO)
@@ -47,13 +48,13 @@ public class BlockServiceImpl implements BlockService {
     }
 
     @Override
-    public BlockDTO findById(Long id) {
+    public BlockDTO findById(Long id, UserDetails currentUserDetails) {
         return blockMapper.blockToBlockDTO(repository.findById(id)
                 .orElseThrow(() -> new BlockNotFoundException(id)));
     }
 
     @Override
-    public BlockDTO insert(BlockDTO dto) {
+    public BlockDTO insert(BlockDTO dto, UserDetails currentUserDetails) {
         Property property = propertyRepository.findById(dto.getProperty().getId())
                 .orElseThrow(() -> new PropertyNotFoundException(dto.getProperty().getId()));
 
@@ -68,7 +69,7 @@ public class BlockServiceImpl implements BlockService {
 
 
     @Override
-    public BlockDTO update(BlockDTO dto) {
+    public BlockDTO update(BlockDTO dto, UserDetails currentUserDetails) {
         Block existingBlock = repository.findById(dto.getId())
                 .orElseThrow(() -> new BlockNotFoundException(dto.getId()));
 
@@ -88,8 +89,8 @@ public class BlockServiceImpl implements BlockService {
     }
 
     @Override
-    public void delete(Long id) {
-        this.findById(id);
+    public void delete(Long id, UserDetails currentUserDetails) {
+        this.findById(id, currentUserDetails);
         repository.deleteById(id);
     }
 }

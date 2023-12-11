@@ -6,6 +6,7 @@ import com.victorsaez.bookingapi.exceptions.ClientNotFoundException;
 import com.victorsaez.bookingapi.mappers.ClientMapper;
 import com.victorsaez.bookingapi.repositories.ClientRepository;
 import com.victorsaez.bookingapi.services.ClientService;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,7 +24,7 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public List<ClientDTO> findAll() {
+    public List<ClientDTO> findAll(UserDetails currentUserDetails) {
         List<Client> clients = repository.findAll();
         return clients.stream()
                 .map(clientMapper::clientToClientDTO)
@@ -31,19 +32,19 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public ClientDTO findById(Long id) throws ClientNotFoundException {
+    public ClientDTO findById(Long id, UserDetails currentUserDetails) throws ClientNotFoundException {
         return clientMapper.clientToClientDTO(repository.findById(id)
                 .orElseThrow(() -> new ClientNotFoundException(id)));
     }
 
     @Override
-    public ClientDTO insert(ClientDTO dto) {
+    public ClientDTO insert(ClientDTO dto, UserDetails currentUserDetails) {
         Client clientToSave = repository.save(clientMapper.clientDTOtoClient(dto));
         return clientMapper.clientToClientDTO(clientToSave);
     }
 
     @Override
-    public ClientDTO update(ClientDTO dto) {
+    public ClientDTO update(ClientDTO dto, UserDetails currentUserDetails) {
         Client existingClient = repository.findById(dto.getId())
                 .orElseThrow(() -> new ClientNotFoundException(dto.getId()));
 
@@ -55,8 +56,8 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public void delete(Long id) {
-        this.findById(id);
+    public void delete(Long id, UserDetails currentUserDetails) {
+        this.findById(id, currentUserDetails);
         repository.deleteById(id);
     }
 }

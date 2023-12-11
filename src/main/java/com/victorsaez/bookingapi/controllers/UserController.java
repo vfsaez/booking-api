@@ -8,6 +8,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -29,8 +31,8 @@ public class UserController {
     @GetMapping
     @Operation(summary = "Returns all users in database.")
     @ApiResponse(responseCode = "200", description = "OK.")
-    public ResponseEntity<List<UserDTO>> findAll() {
-        return ResponseEntity.ok().body(service.findAll());
+    public ResponseEntity<List<UserDTO>> findAll(@AuthenticationPrincipal UserDetails currentUserDetails) {
+        return ResponseEntity.ok().body(service.findAll(currentUserDetails));
     }
 
     @GetMapping(value = "/{id}")
@@ -39,8 +41,8 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "OK."),
             @ApiResponse(responseCode = "404", description = "User not found.")
     })
-    public ResponseEntity<UserDTO> findById(@PathVariable Long id) {
-           return ResponseEntity.ok().body(service.findById(id));
+    public ResponseEntity<UserDTO> findById(@PathVariable Long id, @AuthenticationPrincipal UserDetails currentUserDetails) {
+           return ResponseEntity.ok().body(service.findById(id, currentUserDetails));
     }
 
     @DeleteMapping(value = "/{id}")
@@ -50,8 +52,8 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "User not found."),
             @ApiResponse(responseCode = "400", description = "Invalid request.")
     })
-    public void delete(@PathVariable Long id) {
-        service.delete(id);
+    public void delete(@PathVariable Long id, @AuthenticationPrincipal UserDetails currentUserDetails) {
+        service.delete(id, currentUserDetails);
     }
 
     @PostMapping
@@ -60,8 +62,8 @@ public class UserController {
             @ApiResponse(responseCode = "201", description = "User created with success."),
             @ApiResponse(responseCode = "400", description = "Invalid request.")
     })
-    public ResponseEntity<UserDTO> insert(@RequestBody @Valid UserDTO user) {
-        var createdUser = service.insert(user);
+    public ResponseEntity<UserDTO> insert(@RequestBody @Valid UserDTO user, @AuthenticationPrincipal UserDetails currentUserDetails) {
+        var createdUser = service.insert(user, currentUserDetails);
         var uri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("{/id}")
@@ -79,9 +81,9 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "User not found."),
             @ApiResponse(responseCode = "400", description = "Invalid request.")
     })
-    public ResponseEntity<UserDTO> update(@PathVariable Long id, @RequestBody @Valid UserDTO user) {
+    public ResponseEntity<UserDTO> update(@PathVariable Long id, @RequestBody @Valid UserDTO user, @AuthenticationPrincipal UserDetails currentUserDetails) {
         user.setId(id);
-        var updatedUser = service.update(user);
+        var updatedUser = service.update(user, currentUserDetails);
         return ResponseEntity.ok().body(updatedUser);
     }
 }

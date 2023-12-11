@@ -13,6 +13,7 @@ import com.victorsaez.bookingapi.repositories.BlockRepository;
 import com.victorsaez.bookingapi.repositories.BookingRepository;
 import com.victorsaez.bookingapi.repositories.PropertyRepository;
 import com.victorsaez.bookingapi.services.PropertyService;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -37,7 +38,7 @@ public class PropertyServiceImpl implements PropertyService {
     }
 
     @Override
-    public List<PropertyDTO> findAll() {
+    public List<PropertyDTO> findAll(UserDetails currentUserDetails) {
         List<Property> properties = repository.findAll();
         return properties.stream()
                 .map(propertyMapper::propertyToPropertyDTO)
@@ -45,13 +46,13 @@ public class PropertyServiceImpl implements PropertyService {
     }
 
     @Override
-    public PropertyDTO findById(Long id) throws PropertyNotFoundException {
+    public PropertyDTO findById(Long id, UserDetails currentUserDetails) throws PropertyNotFoundException {
         return propertyMapper.propertyToPropertyDTO(repository.findById(id)
                 .orElseThrow(() -> new PropertyNotFoundException(id)));
     }
 
     @Override
-    public PropertyDTO insert(PropertyDTO dto) {
+    public PropertyDTO insert(PropertyDTO dto, UserDetails currentUserDetails) {
         var propertySaved = repository.save(propertyMapper.propertyDTOtoProperty(dto));
         return propertyMapper.propertyToPropertyDTO(propertySaved);
     }
@@ -74,7 +75,7 @@ public class PropertyServiceImpl implements PropertyService {
     }
 
     @Override
-    public PropertyDTO update(PropertyDTO dto) {
+    public PropertyDTO update(PropertyDTO dto, UserDetails currentUserDetails) {
         Property existingProperty = repository.findById(dto.getId())
                 .orElseThrow(() -> new PropertyNotFoundException(dto.getId()));
 
@@ -87,8 +88,8 @@ public class PropertyServiceImpl implements PropertyService {
     }
 
     @Override
-    public void delete(Long id) {
-        this.findById(id);
+    public void delete(Long id, UserDetails currentUserDetails) {
+        this.findById(id, currentUserDetails);
         repository.deleteById(id);
     }
 }
