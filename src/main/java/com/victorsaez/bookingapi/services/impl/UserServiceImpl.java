@@ -3,6 +3,7 @@ package com.victorsaez.bookingapi.services.impl;
 import com.victorsaez.bookingapi.dto.UserDTO;
 import com.victorsaez.bookingapi.entities.User;
 import com.victorsaez.bookingapi.exceptions.UserNotFoundException;
+import com.victorsaez.bookingapi.mappers.UserMapper;
 import com.victorsaez.bookingapi.repositories.UserRepository;
 import com.victorsaez.bookingapi.services.UserService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     public UserRepository repository;
+    private final UserMapper userMapper = UserMapper.INSTANCE;
 
     public UserServiceImpl(UserRepository repository) {
         this.repository = repository;
@@ -22,8 +24,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDTO> findAll() {
-        List<User> prod = repository.findAll();
-        return prod.stream().map(UserDTO::new).collect(Collectors.toList());
+        List<User> users = repository.findAll();
+        return users.stream()
+                .map(userMapper::userToUserDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
