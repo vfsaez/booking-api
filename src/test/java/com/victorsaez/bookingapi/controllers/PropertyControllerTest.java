@@ -46,4 +46,11 @@ public class PropertyControllerTest {
                         .andExpect(status().isOk())
                         .andExpect(content().json("[{\"id\":1}]"));
     }
+
+    @Test
+    public void testFindAllIsForbidden() throws Exception {
+        mockMvc.perform(get("/properties")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+    }
 }
