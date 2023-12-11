@@ -62,7 +62,6 @@ public class BlockServiceImpl implements BlockService {
                 .orElseThrow(() -> new PropertyNotFoundException(dto.getPropertyId()));
 
         Block block = blockMapper.blockDTOtoBlock(dto);
-        block.setClient(client);
         block.setProperty(property);
 
         propertyService.checkPropertyAvailabilityOnPeriod(property, dto.getStartDate(), dto.getEndDate());
