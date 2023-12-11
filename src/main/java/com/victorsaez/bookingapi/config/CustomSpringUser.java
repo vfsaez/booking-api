@@ -13,7 +13,7 @@ public class CustomSpringUser extends User {
         super(username, password, authorities);
     }
 
-    Long getId() {
+    public Long getId() {
         return id;
     }
 

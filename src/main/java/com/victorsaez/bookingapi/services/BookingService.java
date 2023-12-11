@@ -1,5 +1,6 @@
 package com.victorsaez.bookingapi.services;
 
+import com.victorsaez.bookingapi.config.CustomSpringUser;
 import com.victorsaez.bookingapi.dto.BookingDTO;
 import com.victorsaez.bookingapi.entities.*;
 import com.victorsaez.bookingapi.enums.BlockStatus;
@@ -41,23 +42,18 @@ public class BookingService {
 
     public List<BookingDTO> findAll(UserDetails currentUserDetails) {
         List<Booking> bookings = repository.findAll();
-        User currentUser = userRepository.findByUsername(currentUserDetails.getUsername())
-                .orElseThrow(() -> new UserNotFoundException(currentUserDetails.getUsername()));
+
         return bookings.stream()
                 .map(bookingMapper::bookingToBookingDTO)
                 .collect(Collectors.toList());
     }
 
     public BookingDTO findById(Long id, UserDetails currentUserDetails) {
-        User currentUser = userRepository.findByUsername(currentUserDetails.getUsername())
-                .orElseThrow(() -> new UserNotFoundException(currentUserDetails.getUsername()));
         return bookingMapper.bookingToBookingDTO(repository.findById(id)
                 .orElseThrow(() -> new BookingNotFoundException(id)));
     }
 
     public BookingDTO insert(BookingDTO dto, UserDetails currentUserDetails) {
-        User currentUser = userRepository.findByUsername(currentUserDetails.getUsername())
-                .orElseThrow(() -> new UserNotFoundException(currentUserDetails.getUsername()));
         Client client = clientRepository.findById(dto.getClientId())
                 .orElseThrow(() -> new ClientNotFoundException(dto.getClientId()));
         Property property = propertyRepository.findById(dto.getPropertyId())
@@ -70,14 +66,12 @@ public class BookingService {
 
         Booking createdBooking = repository.save(booking);
 
-        logger.info("user {} Booking id {} created for property id {} and client id {}", currentUser.getId(), createdBooking.getId(), createdBooking.getProperty().getId(), createdBooking.getClient().getId());
+        logger.info("user {} Booking id {} created for property id {} and client id {}", ((CustomSpringUser) currentUserDetails).getId(), createdBooking.getId(), createdBooking.getProperty().getId(), createdBooking.getClient().getId());
         return bookingMapper.bookingToBookingDTO(createdBooking);
     }
 
 
     public BookingDTO update(BookingDTO dto, UserDetails currentUserDetails) {
-        User currentUser = userRepository.findByUsername(currentUserDetails.getUsername())
-                .orElseThrow(() -> new UserNotFoundException(currentUserDetails.getUsername()));
         Booking existingBooking = repository.findById(dto.getId())
                 .orElseThrow(() -> new BookingNotFoundException(dto.getId()));
 
@@ -93,13 +87,11 @@ public class BookingService {
         existingBooking.setStatus(dto.getStatus());
         Booking updatedBooking = repository.save(existingBooking);
 
-        logger.info("user {} Booking id {} created for property id {} and client id {}", currentUser.getId(), updatedBooking.getId(), updatedBooking.getProperty().getId(), updatedBooking.getClient().getId());
+        logger.info("user {} Booking id {} created for property id {} and client id {}", ((CustomSpringUser) currentUserDetails).getId(), updatedBooking.getId(), updatedBooking.getProperty().getId(), updatedBooking.getClient().getId());
         return bookingMapper.bookingToBookingDTO(updatedBooking);
     }
 
     public void delete(Long id, UserDetails currentUserDetails) {
-        User currentUser = userRepository.findByUsername(currentUserDetails.getUsername())
-                .orElseThrow(() -> new UserNotFoundException(currentUserDetails.getUsername()));
         this.findById(id, currentUserDetails);
         repository.deleteById(id);
     }
