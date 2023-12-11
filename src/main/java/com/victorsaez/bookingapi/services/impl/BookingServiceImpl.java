@@ -25,6 +25,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @Service
 public class BookingServiceImpl implements BookingService {
@@ -34,7 +36,7 @@ public class BookingServiceImpl implements BookingService {
     private final BlockRepository blockRepository;
     private final PropertyService propertyService;
     private final BookingMapper bookingMapper = BookingMapper.INSTANCE;
-
+    private static final Logger logger = LogManager.getLogger(BookingServiceImpl.class);
     public BookingServiceImpl(BookingRepository repository, ClientRepository clientRepository, PropertyRepository propertyRepository, BlockRepository blockRepository, PropertyService propertyService) {
         this.repository = repository;
         this.clientRepository = clientRepository;
@@ -71,6 +73,7 @@ public class BookingServiceImpl implements BookingService {
 
         Booking createdBooking = repository.save(booking);
 
+        logger.info("Booking id {} created for property id {} and client id {}", createdBooking.getId(), createdBooking.getProperty().getId(), createdBooking.getClient().getId());
         return bookingMapper.bookingToBookingDTO(createdBooking);
     }
 
