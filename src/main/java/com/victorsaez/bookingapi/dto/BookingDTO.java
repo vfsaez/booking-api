@@ -15,24 +15,12 @@ import java.util.Date;
 public class BookingDTO {
 
     private Long id;
-    private Instant moment;
     private Date startDate;
     private Date endDate;
     private BookingStatus status;
     private ClientDTO client;
     private Double price;
     private PropertyDTO property;
-
-    public BookingDTO(Booking booking) {
-        id = booking.getId();
-        moment = booking.getMoment();
-        startDate = booking.getStartDate();
-        endDate = booking.getEndDate();
-        status = booking.getStatus();
-        client = new ClientDTO(booking.getClient());
-        price = booking.getPrice();
-        property = new PropertyDTO(booking.getProperty());
-    }
 
     public Long getClientId() {
         return client.getId();

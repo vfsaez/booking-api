@@ -17,16 +17,4 @@ public class ClientDTO {
     private String homeNumber;
     private String zipCode;
 
-    public ClientDTO(Client client) {
-        id = client.getId();
-        name = client.getName();
-        email = client.getEmail();
-        phoneNumber = client.getPhoneNumber();
-        streetName = client.getStreetName();
-        city = client.getCity();
-        state = client.getState();
-        homeNumber = client.getHomeNumber();
-        zipCode = client.getZipCode();
-    }
-
 }

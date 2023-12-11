@@ -21,9 +21,6 @@ public class Block {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private Instant moment;
-
     @Column(nullable = true)
     private Date startDate;
 
@@ -43,12 +40,4 @@ public class Block {
     @ManyToOne
     @JoinColumn(name = "property_id")
     private Property property;
-
-    public Block(BlockDTO dto) {
-        this.moment = dto.getMoment();
-        this.startDate = dto.getStartDate();
-        this.endDate = dto.getEndDate();
-        this.status = dto.getStatus();
-        this.price = dto.getPrice();
-    }
 }

@@ -60,7 +60,7 @@ public class BlockServiceImpl implements BlockService {
         Property property = propertyRepository.findById(dto.getPropertyId())
                 .orElseThrow(() -> new PropertyNotFoundException(dto.getPropertyId()));
 
-        Block block = new Block(dto);
+        Block block = blockMapper.blockDTOtoBlock(dto);
         block.setClient(client);
         block.setProperty(property);
 

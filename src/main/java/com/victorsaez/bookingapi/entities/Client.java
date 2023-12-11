@@ -39,19 +39,4 @@ public class Client {
     @Column(nullable = false)
     private String zipCode;
 
-    public Client(ClientDTO dto) {
-        this.name = dto.getName();
-        this.email = dto.getEmail();
-        this.phoneNumber = dto.getPhoneNumber();
-        this.streetName = dto.getStreetName();
-        this.city = dto.getCity();
-        this.homeNumber = dto.getHomeNumber();
-        this.zipCode = dto.getZipCode();
-    }
-
-    public Client(long id, String name, String email) {
-        this.name = name;
-        this.email = email;
-        this.id = id;
-    }
 }

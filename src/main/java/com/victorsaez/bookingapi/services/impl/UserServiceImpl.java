@@ -41,8 +41,8 @@ public class UserServiceImpl implements UserService {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         String hashedPassword = passwordEncoder.encode("user");
         dto.setPassword(hashedPassword);
-        var propertySaved = repository.save(new User(dto));
-        return userMapper.userToUserDTO(propertySaved);
+        var userSaved = repository.save(userMapper.userDTOtoUser(dto));
+        return userMapper.userToUserDTO(userSaved);
     }
 
     @Override

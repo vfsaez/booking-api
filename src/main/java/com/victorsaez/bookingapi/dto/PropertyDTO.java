@@ -22,9 +22,4 @@ public class PropertyDTO {
     @Min(value = 5, message = "Price can't be lower than 5")
     private Double price;
 
-    public PropertyDTO(Property property) {
-        id = property.getId();
-        name = property.getName();
-        price = property.getPrice();
-    }
 }

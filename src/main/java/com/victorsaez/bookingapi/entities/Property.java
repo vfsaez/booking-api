@@ -24,9 +24,4 @@ public class Property {
     @Column(nullable = false)
     private Double price;
 
-
-    public Property(PropertyDTO dto) {
-        this.name = dto.getName();
-        this.price = dto.getPrice();
-    }
 }

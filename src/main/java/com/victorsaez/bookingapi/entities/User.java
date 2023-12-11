@@ -24,10 +24,4 @@ public class User {
     private String password;
 
     private String roles;
-
-    public User(UserDTO dto) {
-        this.username = dto.getUsername();
-        this.password = dto.getPassword();
-        this.roles = dto.getRoles();
-    }
 }

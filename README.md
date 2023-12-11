@@ -30,8 +30,12 @@ mvn test
 
 ---------------------------
 
-The API implements a simple authentication and authorization scheme using JWT
+Notes
+
+The API implements an authentication and authorization scheme using JWT
 Endpoints require User to be logged in to access them, except the session creation/login endpoint
+-- No public registration endpoint is provided
 There are two test files as examples
+
  
 

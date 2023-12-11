@@ -38,7 +38,7 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public ClientDTO insert(ClientDTO dto) {
-        Client clientToSave = repository.save(new Client(dto));
+        Client clientToSave = repository.save(clientMapper.clientDTOtoClient(dto));
         return clientMapper.clientToClientDTO(clientToSave);
     }
 

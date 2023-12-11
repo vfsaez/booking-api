@@ -38,7 +38,7 @@ public class PropertyServiceImpl implements PropertyService {
 
     @Override
     public PropertyDTO insert(PropertyDTO dto) {
-        var propertySaved = repository.save(new Property(dto));
+        var propertySaved = repository.save(propertyMapper.propertyDTOtoProperty(dto));
         return propertyMapper.propertyToPropertyDTO(propertySaved);
     }
 
