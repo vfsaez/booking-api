@@ -18,6 +18,7 @@ import com.victorsaez.bookingapi.repositories.PropertyRepository;
 import com.victorsaez.bookingapi.repositories.BlockRepository;
 
 import com.victorsaez.bookingapi.services.BookingService;
+import com.victorsaez.bookingapi.services.PropertyService;
 import org.springframework.stereotype.Service;
 
 import java.util.Calendar;
@@ -31,14 +32,15 @@ public class BookingServiceImpl implements BookingService {
     private final ClientRepository clientRepository;
     private final PropertyRepository propertyRepository;
     private final BlockRepository blockRepository;
-
+    private final PropertyService propertyService;
     private final BookingMapper bookingMapper = BookingMapper.INSTANCE;
 
-    public BookingServiceImpl(BookingRepository repository, ClientRepository clientRepository, PropertyRepository propertyRepository, BlockRepository blockRepository) {
+    public BookingServiceImpl(BookingRepository repository, ClientRepository clientRepository, PropertyRepository propertyRepository, BlockRepository blockRepository, PropertyService propertyService) {
         this.repository = repository;
         this.clientRepository = clientRepository;
         this.propertyRepository = propertyRepository;
         this.blockRepository = blockRepository;
+        this.propertyService = propertyService;
     }
 
     @Override
@@ -66,19 +68,7 @@ public class BookingServiceImpl implements BookingService {
         booking.setClient(client);
         booking.setProperty(property);
 
-        //check for existing bookings where status is not 'CANCELLED' on the same dates and return error if found
-        List<Booking> existingBookings = repository.findByPropertyAndStartDateLessThanEqualAndEndDateGreaterThanEqualAndStatusIsNot(property, dto.getEndDate(), dto.getStartDate(), BookingStatus.CANCELLED);
 
-        if (!existingBookings.isEmpty()) {
-            throw new PropertyNotAvailableException(property.getId(), property.getName(), dto.getStartDate(), dto.getEndDate());
-        }
-
-        //check for existing blocks where status is not 'CANCELLED' on the same dates and return error if found
-        List<Block> existingBlocks = blockRepository.findByPropertyAndStartDateLessThanEqualAndEndDateGreaterThanEqualAndStatusIsNot(property, dto.getEndDate(), dto.getStartDate(), BlockStatus.CANCELLED);
-
-        if (!existingBlocks.isEmpty()) {
-            throw new PropertyNotAvailableException(property.getId(), property.getName(), dto.getStartDate(), dto.getEndDate());
-        }
 
         Booking createdBooking = repository.save(booking);
 
@@ -95,19 +85,7 @@ public class BookingServiceImpl implements BookingService {
                 .orElseThrow(() -> new PropertyNotFoundException(dto.getPropertyId()));
 
         if (existingBooking.getStatus().equals(BookingStatus.CANCELLED) && !dto.getStatus().equals(BookingStatus.CANCELLED)) {
-            //check for existing bookings where status is not 'CANCELLED' on the same dates and return error if found
-            List<Booking> existingBookings = repository.findByPropertyAndStartDateLessThanEqualAndEndDateGreaterThanEqualAndStatusIsNot(property, dto.getEndDate(), dto.getStartDate(), BookingStatus.CANCELLED);
-
-            if (!existingBookings.isEmpty()) {
-                throw new PropertyNotAvailableException(property.getId(), property.getName(), dto.getStartDate(), dto.getEndDate());
-            }
-
-            //check for existing blocks where status is not 'CANCELLED' on the same dates and return error if found
-            List<Block> existingBlocks = blockRepository.findByPropertyAndStartDateLessThanEqualAndEndDateGreaterThanEqualAndStatusIsNot(property, dto.getEndDate(), dto.getStartDate(), BlockStatus.CANCELLED);
-
-            if (!existingBlocks.isEmpty()) {
-                throw new PropertyNotAvailableException(property.getId(), property.getName(), dto.getStartDate(), dto.getEndDate());
-            }
+            propertyService.checkPropertyAvailabilityOnPeriod(property, dto.getStartDate(), dto.getEndDate());
         }
 
         existingBooking.setStartDate(dto.getStartDate());

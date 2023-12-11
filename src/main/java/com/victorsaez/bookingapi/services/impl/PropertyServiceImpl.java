@@ -1,13 +1,21 @@
 package com.victorsaez.bookingapi.services.impl;
 
 import com.victorsaez.bookingapi.dto.PropertyDTO;
+import com.victorsaez.bookingapi.entities.Block;
+import com.victorsaez.bookingapi.entities.Booking;
 import com.victorsaez.bookingapi.entities.Property;
+import com.victorsaez.bookingapi.enums.BlockStatus;
+import com.victorsaez.bookingapi.enums.BookingStatus;
+import com.victorsaez.bookingapi.exceptions.PropertyNotAvailableException;
 import com.victorsaez.bookingapi.exceptions.PropertyNotFoundException;
 import com.victorsaez.bookingapi.mappers.PropertyMapper;
+import com.victorsaez.bookingapi.repositories.BlockRepository;
+import com.victorsaez.bookingapi.repositories.BookingRepository;
 import com.victorsaez.bookingapi.repositories.PropertyRepository;
 import com.victorsaez.bookingapi.services.PropertyService;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,10 +24,16 @@ public class PropertyServiceImpl implements PropertyService {
 
     public PropertyRepository repository;
 
+    private final BookingRepository bookingRepository;
+
+    private final BlockRepository blockRepository;
+
     private final PropertyMapper propertyMapper = PropertyMapper.INSTANCE;
 
-    public PropertyServiceImpl(PropertyRepository repository) {
+    public PropertyServiceImpl(PropertyRepository repository, BookingRepository bookingRepository, BlockRepository blockRepository) {
         this.repository = repository;
+        this.bookingRepository = bookingRepository;
+        this.blockRepository = blockRepository;
     }
 
     @Override
@@ -40,6 +54,23 @@ public class PropertyServiceImpl implements PropertyService {
     public PropertyDTO insert(PropertyDTO dto) {
         var propertySaved = repository.save(propertyMapper.propertyDTOtoProperty(dto));
         return propertyMapper.propertyToPropertyDTO(propertySaved);
+    }
+
+    @Override
+    public void checkPropertyAvailabilityOnPeriod(Property property, Date startDate, Date endDate) {
+        //check for existing bookings where status is not 'CANCELLED' on the same dates and return error if found
+        List<Booking> existingBookings = bookingRepository.findByPropertyAndStartDateLessThanEqualAndEndDateGreaterThanEqualAndStatusIsNot(property, endDate, startDate, BookingStatus.CANCELLED);
+
+        if (!existingBookings.isEmpty()) {
+            throw new PropertyNotAvailableException(property.getId(), property.getName(), startDate, endDate);
+        }
+
+        //check for existing blocks where status is not 'CANCELLED' on the same dates and return error if found
+        List<Block> existingBlocks = blockRepository.findByPropertyAndStartDateLessThanEqualAndEndDateGreaterThanEqualAndStatusIsNot(property, endDate, startDate, BlockStatus.CANCELLED);
+
+        if (!existingBlocks.isEmpty()) {
+            throw new PropertyNotAvailableException(property.getId(), property.getName(), startDate, endDate);
+        }
     }
 
     @Override

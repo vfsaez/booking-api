@@ -17,6 +17,7 @@ import com.victorsaez.bookingapi.repositories.ClientRepository;
 import com.victorsaez.bookingapi.repositories.PropertyRepository;
 import com.victorsaez.bookingapi.repositories.BookingRepository;
 import com.victorsaez.bookingapi.services.BlockService;
+import com.victorsaez.bookingapi.services.PropertyService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,15 +29,15 @@ public class BlockServiceImpl implements BlockService {
     private final ClientRepository clientRepository;
     private final PropertyRepository propertyRepository;
 
-    private final BookingRepository bookingRepository;
+    private final PropertyService propertyService;
 
     private final BlockMapper blockMapper = BlockMapper.INSTANCE;
 
-    public BlockServiceImpl(BlockRepository repository, ClientRepository clientRepository, PropertyRepository propertyRepository, BookingRepository bookingRepository) {
+    public BlockServiceImpl(BlockRepository repository, ClientRepository clientRepository, PropertyRepository propertyRepository, BookingRepository bookingRepository,  PropertyService propertyService) {
         this.repository = repository;
         this.clientRepository = clientRepository;
         this.propertyRepository = propertyRepository;
-        this.bookingRepository = bookingRepository;
+        this.propertyService = propertyService;
     }
 
     @Override
@@ -64,19 +65,7 @@ public class BlockServiceImpl implements BlockService {
         block.setClient(client);
         block.setProperty(property);
 
-        //check for existing bookings where status is not 'CANCELLED' on the same dates and return error if found
-        List<Booking> existingBookings = bookingRepository.findByPropertyAndStartDateLessThanEqualAndEndDateGreaterThanEqualAndStatusIsNot(property, dto.getEndDate(), dto.getStartDate(), BookingStatus.CANCELLED);
-
-        if (!existingBookings.isEmpty()) {
-            throw new PropertyNotAvailableException(property.getId(), property.getName(), dto.getStartDate(), dto.getEndDate());
-        }
-
-        //check for existing blocks where status is not 'CANCELLED' on the same dates and return error if found
-        List<Block> existingBlocks = repository.findByPropertyAndStartDateLessThanEqualAndEndDateGreaterThanEqualAndStatusIsNot(property, dto.getEndDate(), dto.getStartDate(), BlockStatus.CANCELLED);
-
-        if (!existingBlocks.isEmpty()) {
-            throw new PropertyNotAvailableException(property.getId(), property.getName(), dto.getStartDate(), dto.getEndDate());
-        }
+        propertyService.checkPropertyAvailabilityOnPeriod(property, dto.getStartDate(), dto.getEndDate());
 
         Block createdBlock = repository.save(block);
 
@@ -93,19 +82,7 @@ public class BlockServiceImpl implements BlockService {
                 .orElseThrow(() -> new PropertyNotFoundException(dto.getPropertyId()));
 
         if (existingBlock.getStatus().equals(BlockStatus.CANCELLED) && !dto.getStatus().equals(BlockStatus.CANCELLED)) {
-            //check for existing bookings where status is not 'CANCELLED' on the same dates and return error if found
-            List<Booking> existingBookings = bookingRepository.findByPropertyAndStartDateLessThanEqualAndEndDateGreaterThanEqualAndStatusIsNot(property, dto.getEndDate(), dto.getStartDate(), BookingStatus.CANCELLED);
-
-            if (!existingBookings.isEmpty()) {
-                throw new PropertyNotAvailableException(property.getId(), property.getName(), dto.getStartDate(), dto.getEndDate());
-            }
-
-            //check for existing blocks where status is not 'CANCELLED' on the same dates and return error if found
-            List<Block> existingBlocks = repository.findByPropertyAndStartDateLessThanEqualAndEndDateGreaterThanEqualAndStatusIsNot(property, dto.getEndDate(), dto.getStartDate(), BlockStatus.CANCELLED);
-
-            if (!existingBlocks.isEmpty()) {
-                throw new PropertyNotAvailableException(property.getId(), property.getName(), dto.getStartDate(), dto.getEndDate());
-            }
+            propertyService.checkPropertyAvailabilityOnPeriod(property, dto.getStartDate(), dto.getEndDate());
         }
 
         existingBlock.setStartDate(dto.getStartDate());

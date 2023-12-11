@@ -2,7 +2,9 @@ package com.victorsaez.bookingapi.services;
 
 
 import com.victorsaez.bookingapi.dto.PropertyDTO;
+import com.victorsaez.bookingapi.entities.Property;
 
+import java.util.Date;
 import java.util.List;
 
 public interface PropertyService {
@@ -15,5 +17,8 @@ public interface PropertyService {
     PropertyDTO update(PropertyDTO dto);
 
     void delete(Long id);
+
+    void checkPropertyAvailabilityOnPeriod(Property property, Date startDate, Date endDate);
+
 }
 

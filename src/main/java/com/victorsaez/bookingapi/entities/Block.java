@@ -21,10 +21,10 @@ public class Block {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = true)
+    @Column(nullable = false)
     private Date startDate;
 
-    @Column(nullable = true)
+    @Column(nullable = false)
     private Date endDate;
 
     @Column(nullable = false)
@@ -34,7 +34,7 @@ public class Block {
     @JoinColumn(name = "client_id")
     private Client client;
 
-    @Column(nullable = true)
+    @Column(nullable = false)
     private Double price;
 
     @ManyToOne

@@ -24,10 +24,10 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = true)
+    @Column(nullable = false)
     private Date startDate;
 
-    @Column(nullable = true)
+    @Column(nullable = false)
     private Date endDate;
 
     @Column(nullable = false)
