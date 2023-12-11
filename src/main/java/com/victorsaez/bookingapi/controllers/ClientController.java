@@ -7,6 +7,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -30,8 +32,8 @@ public class ClientController {
     @Operation(summary = "Returns all clients in database.")
     @ApiResponse(responseCode =  "200", description = "OK")
     @GetMapping
-    public ResponseEntity<List<ClientDTO>> findAll(@AuthenticationPrincipal UserDetails currentUserDetails) {
-        return ResponseEntity.ok().body(service.findAll(currentUserDetails));
+    public ResponseEntity<Page<ClientDTO>> findAll(Pageable pageable, @AuthenticationPrincipal UserDetails currentUserDetails) {
+        return ResponseEntity.ok().body(service.findAll(pageable, currentUserDetails));
     }
 
     @GetMapping(value = "/{id}")

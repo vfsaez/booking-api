@@ -7,6 +7,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -31,8 +33,8 @@ public class BookingController {
     @GetMapping
     @Operation(summary = "Returns all bookings in database.")
     @ApiResponse(responseCode = "200", description = "OK.")
-    public ResponseEntity<List<BookingDTO>> findAll(@AuthenticationPrincipal UserDetails currentUserDetails) {
-         return ResponseEntity.ok().body(service.findAll(currentUserDetails));
+    public ResponseEntity<Page<BookingDTO>> findAll(Pageable pageable, @AuthenticationPrincipal UserDetails currentUserDetails) {
+         return ResponseEntity.ok().body(service.findAll(pageable, currentUserDetails));
     }
 
     @GetMapping(value = "/{id}")

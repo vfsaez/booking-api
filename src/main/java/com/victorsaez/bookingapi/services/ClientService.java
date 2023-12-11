@@ -5,6 +5,8 @@ import com.victorsaez.bookingapi.entities.Client;
 import com.victorsaez.bookingapi.exceptions.ClientNotFoundException;
 import com.victorsaez.bookingapi.mappers.ClientMapper;
 import com.victorsaez.bookingapi.repositories.ClientRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -22,11 +24,9 @@ public class ClientService {
         this.repository = repository;
     }
 
-    public List<ClientDTO> findAll(UserDetails currentUserDetails) {
-        List<Client> clients = repository.findAll();
-        return clients.stream()
-                .map(clientMapper::clientToClientDTO)
-                .collect(Collectors.toList());
+    public Page<ClientDTO> findAll(Pageable pageable, UserDetails currentUserDetails) {
+        Page<Client> clients = repository.findAll(pageable);
+        return clients.map(clientMapper::clientToClientDTO);
     }
 
     public ClientDTO findById(Long id, UserDetails currentUserDetails) throws ClientNotFoundException {

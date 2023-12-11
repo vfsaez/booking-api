@@ -6,6 +6,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -31,8 +33,8 @@ public class UserController {
     @GetMapping
     @Operation(summary = "Returns all users in database.")
     @ApiResponse(responseCode = "200", description = "OK.")
-    public ResponseEntity<List<UserDTO>> findAll(@AuthenticationPrincipal UserDetails currentUserDetails) {
-        return ResponseEntity.ok().body(service.findAll(currentUserDetails));
+    public ResponseEntity<Page<UserDTO>> findAll(Pageable pageable, @AuthenticationPrincipal UserDetails currentUserDetails) {
+        return ResponseEntity.ok().body(service.findAll(pageable, currentUserDetails));
     }
 
     @GetMapping(value = "/{id}")

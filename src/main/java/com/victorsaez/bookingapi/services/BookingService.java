@@ -12,6 +12,8 @@ import com.victorsaez.bookingapi.repositories.*;
 
 import com.victorsaez.bookingapi.services.PropertyService;
 import com.victorsaez.bookingapi.services.UserService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -40,12 +42,10 @@ public class BookingService {
         this.userRepository = userRepository;
     }
 
-    public List<BookingDTO> findAll(UserDetails currentUserDetails) {
-        List<Booking> bookings = repository.findAll();
+    public Page<BookingDTO> findAll(Pageable pageable, UserDetails currentUserDetails) {
+        Page<Booking> bookings = repository.findAll(pageable);
 
-        return bookings.stream()
-                .map(bookingMapper::bookingToBookingDTO)
-                .collect(Collectors.toList());
+        return bookings.map(bookingMapper::bookingToBookingDTO);
     }
 
     public BookingDTO findById(Long id, UserDetails currentUserDetails) {

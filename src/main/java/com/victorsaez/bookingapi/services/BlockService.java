@@ -17,6 +17,8 @@ import com.victorsaez.bookingapi.repositories.ClientRepository;
 import com.victorsaez.bookingapi.repositories.PropertyRepository;
 import com.victorsaez.bookingapi.repositories.BookingRepository;
 import com.victorsaez.bookingapi.services.PropertyService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -38,11 +40,9 @@ public class BlockService {
         this.propertyService = propertyService;
     }
 
-    public List<BlockDTO> findAll(UserDetails currentUserDetails) {
-        List<Block> blocks = repository.findAll();
-        return blocks.stream()
-                .map(blockMapper::blockToBlockDTO)
-                .collect(Collectors.toList());
+    public Page<BlockDTO> findAll(Pageable pageable, UserDetails currentUserDetails) {
+        Page<Block> blocks = repository.findAll(pageable);
+        return blocks.map(blockMapper::blockToBlockDTO);
     }
 
     public BlockDTO findById(Long id, UserDetails currentUserDetails) {
