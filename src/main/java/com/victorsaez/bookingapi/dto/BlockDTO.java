@@ -20,14 +20,13 @@ public class BlockDTO {
     private BlockStatus status;
     private ClientDTO client;
     private Double price;
+
+    private Long propertyId;
     private PropertyDTO property;
 
-    public Long getClientId() {
-        return client.getId();
+    public Long getPropertyId() {
+        return property != null ? property.getId() : propertyId;
     }
 
-    public Long getPropertyId() {
-        return property.getId();
-    }
 }
 

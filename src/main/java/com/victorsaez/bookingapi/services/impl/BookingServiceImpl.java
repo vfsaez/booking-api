@@ -63,12 +63,11 @@ public class BookingServiceImpl implements BookingService {
                 .orElseThrow(() -> new ClientNotFoundException(dto.getClientId()));
         Property property = propertyRepository.findById(dto.getPropertyId())
                 .orElseThrow(() -> new PropertyNotFoundException(dto.getPropertyId()));
+        propertyService.checkPropertyAvailabilityOnPeriod(property, dto.getStartDate(), dto.getEndDate());
 
         Booking booking = bookingMapper.bookingDTOtoBooking(dto);
         booking.setClient(client);
         booking.setProperty(property);
-
-
 
         Booking createdBooking = repository.save(booking);
 

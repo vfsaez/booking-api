@@ -1,6 +1,8 @@
 package com.victorsaez.bookingapi.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.victorsaez.bookingapi.entities.Booking;
+import com.victorsaez.bookingapi.entities.Client;
 import com.victorsaez.bookingapi.enums.BookingStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,16 +20,20 @@ public class BookingDTO {
     private Date startDate;
     private Date endDate;
     private BookingStatus status;
-    private ClientDTO client;
     private Double price;
+
+    private Long clientId;
+    private ClientDTO client;
+
+    private Long propertyId;
     private PropertyDTO property;
 
-    public Long getClientId() {
-        return client.getId();
+    public Long getPropertyId() {
+        return property != null ? property.getId() : propertyId;
     }
 
-    public Long getPropertyId() {
-        return property.getId();
+    public Long getClientId() {
+        return client != null ? client.getId() : clientId;
     }
 }
 

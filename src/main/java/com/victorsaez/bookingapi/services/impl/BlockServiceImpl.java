@@ -26,16 +26,14 @@ import java.util.stream.Collectors;
 @Service
 public class BlockServiceImpl implements BlockService {
     private final BlockRepository repository;
-    private final ClientRepository clientRepository;
     private final PropertyRepository propertyRepository;
 
     private final PropertyService propertyService;
 
     private final BlockMapper blockMapper = BlockMapper.INSTANCE;
 
-    public BlockServiceImpl(BlockRepository repository, ClientRepository clientRepository, PropertyRepository propertyRepository, BookingRepository bookingRepository,  PropertyService propertyService) {
+    public BlockServiceImpl(BlockRepository repository, PropertyRepository propertyRepository, BookingRepository bookingRepository,  PropertyService propertyService) {
         this.repository = repository;
-        this.clientRepository = clientRepository;
         this.propertyRepository = propertyRepository;
         this.propertyService = propertyService;
     }
@@ -56,16 +54,13 @@ public class BlockServiceImpl implements BlockService {
 
     @Override
     public BlockDTO insert(BlockDTO dto) {
-        Client client = clientRepository.findById(dto.getClientId())
-                .orElseThrow(() -> new ClientNotFoundException(dto.getClientId()));
-        Property property = propertyRepository.findById(dto.getPropertyId())
-                .orElseThrow(() -> new PropertyNotFoundException(dto.getPropertyId()));
+        Property property = propertyRepository.findById(dto.getProperty().getId())
+                .orElseThrow(() -> new PropertyNotFoundException(dto.getProperty().getId()));
 
         Block block = blockMapper.blockDTOtoBlock(dto);
         block.setProperty(property);
 
         propertyService.checkPropertyAvailabilityOnPeriod(property, dto.getStartDate(), dto.getEndDate());
-
         Block createdBlock = repository.save(block);
 
         return blockMapper.blockToBlockDTO(createdBlock);
@@ -77,8 +72,8 @@ public class BlockServiceImpl implements BlockService {
         Block existingBlock = repository.findById(dto.getId())
                 .orElseThrow(() -> new BlockNotFoundException(dto.getId()));
 
-        Property property = propertyRepository.findById(dto.getPropertyId())
-                .orElseThrow(() -> new PropertyNotFoundException(dto.getPropertyId()));
+        Property property = propertyRepository.findById(dto.getProperty().getId())
+                .orElseThrow(() -> new PropertyNotFoundException(dto.getProperty().getId()));
 
         if (existingBlock.getStatus().equals(BlockStatus.CANCELLED) && !dto.getStatus().equals(BlockStatus.CANCELLED)) {
             propertyService.checkPropertyAvailabilityOnPeriod(property, dto.getStartDate(), dto.getEndDate());
