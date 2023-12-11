@@ -48,7 +48,6 @@ public class ClientServiceImpl implements ClientService {
                 .orElseThrow(() -> new ClientNotFoundException(dto.getId()));
 
         existingClient.setName(dto.getName());
-        existingClient.setEmail(dto.getEmail());
 
         Client updatedClient = repository.save(existingClient);
 

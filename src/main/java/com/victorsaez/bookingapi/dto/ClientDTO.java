@@ -7,14 +7,9 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ClientDTO {
+
     private Long id;
     private String name;
-    private String email;
-    private String phoneNumber;
-    private String streetName;
-    private String city;
-    private String state;
-    private String homeNumber;
-    private String zipCode;
+    private int totalRentals;
 
 }

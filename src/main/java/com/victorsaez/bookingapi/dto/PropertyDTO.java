@@ -18,7 +18,7 @@ public class PropertyDTO {
     @Size(min = 3, max = 25)
     private String name;
     @NotNull(message = "Price can't be null or empty")
-    @Max(value = 999, message = "Price can't exceed 999.00")
+    @Max(value = 99999, message = "Price can't exceed 99999.00")
     @Min(value = 5, message = "Price can't be lower than 5")
     private Double price;
 

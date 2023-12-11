@@ -31,13 +31,6 @@ public class Block {
     private BlockStatus status;
 
     @ManyToOne
-    @JoinColumn(name = "client_id")
-    private Client client;
-
-    @Column(nullable = false)
-    private Double price;
-
-    @ManyToOne
     @JoinColumn(name = "property_id")
     private Property property;
 }
