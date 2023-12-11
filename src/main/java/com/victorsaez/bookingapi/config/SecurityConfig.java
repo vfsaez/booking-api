@@ -27,17 +27,17 @@ import java.util.Map;
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private UserDetailsService userDetailsService;
+    private UserDetailsService customUserDetailsService;
     private JwtRequestFilter jwtRequestFilter;
 
     public SecurityConfig(UserDetailsService userDetailsService, JwtRequestFilter jwtRequestFilter) {
-        this.userDetailsService = userDetailsService;
+        this.customUserDetailsService = userDetailsService;
         this.jwtRequestFilter = jwtRequestFilter;
     }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+        auth.userDetailsService(customUserDetailsService).passwordEncoder(passwordEncoder());
     }
 
     private Map<String, Object> formattedErrorMessage(int status, String message, String path) {

@@ -4,11 +4,13 @@ import com.victorsaez.bookingapi.dto.PropertyDTO;
 import com.victorsaez.bookingapi.services.PropertyService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Collections;
@@ -32,10 +34,11 @@ public class PropertyControllerTest {
 
     @BeforeEach
     public void setup() {
-        PropertyDTO property = new PropertyDTO();
-        property.setId(1L);
-
-        when(propertyService.findAll()).thenReturn(Collections.singletonList(property));
+        PropertyDTO propertyDTO = new PropertyDTO();
+        propertyDTO.setId(1L);
+        UserDetails mockUserDetails = Mockito.mock(UserDetails.class);
+        Mockito.when(mockUserDetails.getUsername()).thenReturn("testUser");
+        when(propertyService.findAll(Mockito.any())).thenReturn(Collections.singletonList(propertyDTO));
     }
 
     @Test
@@ -48,9 +51,9 @@ public class PropertyControllerTest {
     }
 
     @Test
-    public void testFindAllIsForbidden() throws Exception {
+    public void testFindAllIsUnauthorized() throws Exception {
         mockMvc.perform(get("/properties")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized());
     }
 }

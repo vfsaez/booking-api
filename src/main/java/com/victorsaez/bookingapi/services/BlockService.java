@@ -1,24 +1,90 @@
 package com.victorsaez.bookingapi.services;
 
 import com.victorsaez.bookingapi.dto.BlockDTO;
+import com.victorsaez.bookingapi.entities.Block;
+import com.victorsaez.bookingapi.entities.Booking;
+import com.victorsaez.bookingapi.entities.Client;
+import com.victorsaez.bookingapi.entities.Property;
+import com.victorsaez.bookingapi.enums.BlockStatus;
+import com.victorsaez.bookingapi.enums.BookingStatus;
+import com.victorsaez.bookingapi.exceptions.BlockNotFoundException;
+import com.victorsaez.bookingapi.exceptions.ClientNotFoundException;
+import com.victorsaez.bookingapi.exceptions.PropertyNotAvailableException;
+import com.victorsaez.bookingapi.exceptions.PropertyNotFoundException;
+import com.victorsaez.bookingapi.mappers.BlockMapper;
+import com.victorsaez.bookingapi.repositories.BlockRepository;
+import com.victorsaez.bookingapi.repositories.ClientRepository;
+import com.victorsaez.bookingapi.repositories.PropertyRepository;
+import com.victorsaez.bookingapi.repositories.BookingRepository;
+import com.victorsaez.bookingapi.services.PropertyService;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+public class BlockService {
+    private final BlockRepository repository;
+    private final PropertyRepository propertyRepository;
+
+    private final PropertyService propertyService;
+
+    private final BlockMapper blockMapper = BlockMapper.INSTANCE;
+
+    public BlockService(BlockRepository repository, PropertyRepository propertyRepository, BookingRepository bookingRepository,  PropertyService propertyService) {
+        this.repository = repository;
+        this.propertyRepository = propertyRepository;
+        this.propertyService = propertyService;
+    }
+
+    public List<BlockDTO> findAll(UserDetails currentUserDetails) {
+        List<Block> blocks = repository.findAll();
+        return blocks.stream()
+                .map(blockMapper::blockToBlockDTO)
+                .collect(Collectors.toList());
+    }
+
+    public BlockDTO findById(Long id, UserDetails currentUserDetails) {
+        return blockMapper.blockToBlockDTO(repository.findById(id)
+                .orElseThrow(() -> new BlockNotFoundException(id)));
+    }
+
+    public BlockDTO insert(BlockDTO dto, UserDetails currentUserDetails) {
+        Property property = propertyRepository.findById(dto.getProperty().getId())
+                .orElseThrow(() -> new PropertyNotFoundException(dto.getProperty().getId()));
+
+        Block block = blockMapper.blockDTOtoBlock(dto);
+        block.setProperty(property);
+
+        propertyService.checkPropertyAvailabilityOnPeriod(property, dto.getStartDate(), dto.getEndDate());
+        Block createdBlock = repository.save(block);
+
+        return blockMapper.blockToBlockDTO(createdBlock);
+    }
 
 
-public interface BlockService {
+    public BlockDTO update(BlockDTO dto, UserDetails currentUserDetails) {
+        Block existingBlock = repository.findById(dto.getId())
+                .orElseThrow(() -> new BlockNotFoundException(dto.getId()));
 
-    List<BlockDTO> findAll(UserDetails currentUserDetails);
+        Property property = propertyRepository.findById(dto.getProperty().getId())
+                .orElseThrow(() -> new PropertyNotFoundException(dto.getProperty().getId()));
 
-    BlockDTO findById(Long id, UserDetails currentUserDetails);
+        if (existingBlock.getStatus().equals(BlockStatus.CANCELLED) && !dto.getStatus().equals(BlockStatus.CANCELLED)) {
+            propertyService.checkPropertyAvailabilityOnPeriod(property, dto.getStartDate(), dto.getEndDate());
+        }
 
-    BlockDTO insert(BlockDTO block, UserDetails currentUserDetails);
+        existingBlock.setStartDate(dto.getStartDate());
+        existingBlock.setEndDate(dto.getEndDate());
+        existingBlock.setStatus(dto.getStatus());
+        Block updatedBlock = repository.save(existingBlock);
 
-    BlockDTO update(BlockDTO block, UserDetails currentUserDetails);
+        return blockMapper.blockToBlockDTO(updatedBlock);
+    }
 
-    void delete(Long id, UserDetails currentUserDetails);
+    public void delete(Long id, UserDetails currentUserDetails) {
+        this.findById(id, currentUserDetails);
+        repository.deleteById(id);
+    }
 }
-
-
-
-
