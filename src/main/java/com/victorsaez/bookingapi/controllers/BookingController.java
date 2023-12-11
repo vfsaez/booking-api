@@ -32,7 +32,7 @@ public class BookingController {
     @Operation(summary = "Returns all bookings in database.")
     @ApiResponse(responseCode = "200", description = "OK.")
     public ResponseEntity<List<BookingDTO>> findAll(@AuthenticationPrincipal UserDetails currentUserDetails) {
-        return ResponseEntity.ok().body(service.findAll(currentUserDetails));
+         return ResponseEntity.ok().body(service.findAll(currentUserDetails));
     }
 
     @GetMapping(value = "/{id}")
