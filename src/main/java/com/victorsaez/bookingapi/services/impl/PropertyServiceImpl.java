@@ -3,6 +3,7 @@ package com.victorsaez.bookingapi.services.impl;
 import com.victorsaez.bookingapi.dto.PropertyDTO;
 import com.victorsaez.bookingapi.entities.Property;
 import com.victorsaez.bookingapi.exceptions.PropertyNotFoundException;
+import com.victorsaez.bookingapi.mappers.PropertyMapper;
 import com.victorsaez.bookingapi.repositories.PropertyRepository;
 import com.victorsaez.bookingapi.services.PropertyService;
 import org.springframework.stereotype.Service;
@@ -15,26 +16,30 @@ public class PropertyServiceImpl implements PropertyService {
 
     public PropertyRepository repository;
 
+    private final PropertyMapper propertyMapper = PropertyMapper.INSTANCE;
+
     public PropertyServiceImpl(PropertyRepository repository) {
         this.repository = repository;
     }
 
     @Override
     public List<PropertyDTO> findAll() {
-        List<Property> prod = repository.findAll();
-        return prod.stream().map(PropertyDTO::new).collect(Collectors.toList());
+        List<Property> properties = repository.findAll();
+        return properties.stream()
+                .map(propertyMapper::propertyToPropertyDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
     public PropertyDTO findById(Long id) throws PropertyNotFoundException {
-        return new PropertyDTO(repository.findById(id)
+        return propertyMapper.propertyToPropertyDTO(repository.findById(id)
                 .orElseThrow(() -> new PropertyNotFoundException(id)));
     }
 
     @Override
     public PropertyDTO insert(PropertyDTO dto) {
         var propertySaved = repository.save(new Property(dto));
-        return new PropertyDTO(propertySaved);
+        return propertyMapper.propertyToPropertyDTO(propertySaved);
     }
 
     @Override
@@ -47,7 +52,7 @@ public class PropertyServiceImpl implements PropertyService {
 
         Property updatedProperty = repository.save(existingProperty);
 
-        return new PropertyDTO(updatedProperty);
+        return propertyMapper.propertyToPropertyDTO(updatedProperty);
     }
 
     @Override

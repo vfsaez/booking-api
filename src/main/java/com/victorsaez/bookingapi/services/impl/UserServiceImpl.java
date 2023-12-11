@@ -32,7 +32,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO findById(Long id) throws UserNotFoundException {
-        return new UserDTO(repository.findById(id)
+        return userMapper.userToUserDTO(repository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id)));
     }
 
@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
         String hashedPassword = passwordEncoder.encode("user");
         dto.setPassword(hashedPassword);
         var propertySaved = repository.save(new User(dto));
-        return new UserDTO(propertySaved);
+        return userMapper.userToUserDTO(propertySaved);
     }
 
     @Override
@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService {
 
         User updatedUser = repository.save(existingUser);
 
-        return new UserDTO(updatedUser);
+        return userMapper.userToUserDTO((updatedUser));
     }
 
     @Override

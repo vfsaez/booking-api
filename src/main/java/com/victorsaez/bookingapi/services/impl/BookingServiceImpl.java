@@ -11,6 +11,7 @@ import com.victorsaez.bookingapi.exceptions.BookingNotFoundException;
 import com.victorsaez.bookingapi.exceptions.ClientNotFoundException;
 import com.victorsaez.bookingapi.exceptions.PropertyNotAvailableException;
 import com.victorsaez.bookingapi.exceptions.PropertyNotFoundException;
+import com.victorsaez.bookingapi.mappers.BookingMapper;
 import com.victorsaez.bookingapi.repositories.BookingRepository;
 import com.victorsaez.bookingapi.repositories.ClientRepository;
 import com.victorsaez.bookingapi.repositories.PropertyRepository;
@@ -31,6 +32,8 @@ public class BookingServiceImpl implements BookingService {
     private final PropertyRepository propertyRepository;
     private final BlockRepository blockRepository;
 
+    private final BookingMapper bookingMapper = BookingMapper.INSTANCE;
+
     public BookingServiceImpl(BookingRepository repository, ClientRepository clientRepository, PropertyRepository propertyRepository, BlockRepository blockRepository) {
         this.repository = repository;
         this.clientRepository = clientRepository;
@@ -40,13 +43,15 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<BookingDTO> findAll() {
-        List<Booking> list = repository.findAll();
-        return list.stream().map(BookingDTO::new).collect(Collectors.toList());
+        List<Booking> bookings = repository.findAll();
+        return bookings.stream()
+                .map(bookingMapper::bookingToBookingDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
     public BookingDTO findById(Long id) {
-        return new BookingDTO(repository.findById(id)
+        return bookingMapper.bookingToBookingDTO(repository.findById(id)
                 .orElseThrow(() -> new BookingNotFoundException(id)));
     }
 
@@ -77,7 +82,7 @@ public class BookingServiceImpl implements BookingService {
 
         Booking createdBooking = repository.save(booking);
 
-        return new BookingDTO(createdBooking);
+        return bookingMapper.bookingToBookingDTO(createdBooking);
     }
 
 
@@ -110,7 +115,7 @@ public class BookingServiceImpl implements BookingService {
         existingBooking.setStatus(dto.getStatus());
         Booking updatedBooking = repository.save(existingBooking);
 
-        return new BookingDTO(updatedBooking);
+        return bookingMapper.bookingToBookingDTO(updatedBooking);
     }
 
     @Override

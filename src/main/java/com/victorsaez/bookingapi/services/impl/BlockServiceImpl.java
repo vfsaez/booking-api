@@ -11,6 +11,7 @@ import com.victorsaez.bookingapi.exceptions.BlockNotFoundException;
 import com.victorsaez.bookingapi.exceptions.ClientNotFoundException;
 import com.victorsaez.bookingapi.exceptions.PropertyNotAvailableException;
 import com.victorsaez.bookingapi.exceptions.PropertyNotFoundException;
+import com.victorsaez.bookingapi.mappers.BlockMapper;
 import com.victorsaez.bookingapi.repositories.BlockRepository;
 import com.victorsaez.bookingapi.repositories.ClientRepository;
 import com.victorsaez.bookingapi.repositories.PropertyRepository;
@@ -29,6 +30,8 @@ public class BlockServiceImpl implements BlockService {
 
     private final BookingRepository bookingRepository;
 
+    private final BlockMapper blockMapper = BlockMapper.INSTANCE;
+
     public BlockServiceImpl(BlockRepository repository, ClientRepository clientRepository, PropertyRepository propertyRepository, BookingRepository bookingRepository) {
         this.repository = repository;
         this.clientRepository = clientRepository;
@@ -38,13 +41,15 @@ public class BlockServiceImpl implements BlockService {
 
     @Override
     public List<BlockDTO> findAll() {
-        List<Block> list = repository.findAll();
-        return list.stream().map(BlockDTO::new).collect(Collectors.toList());
+        List<Block> blocks = repository.findAll();
+        return blocks.stream()
+                .map(blockMapper::blockToBlockDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
     public BlockDTO findById(Long id) {
-        return new BlockDTO(repository.findById(id)
+        return blockMapper.blockToBlockDTO(repository.findById(id)
                 .orElseThrow(() -> new BlockNotFoundException(id)));
     }
 
@@ -75,7 +80,7 @@ public class BlockServiceImpl implements BlockService {
 
         Block createdBlock = repository.save(block);
 
-        return new BlockDTO(createdBlock);
+        return blockMapper.blockToBlockDTO(createdBlock);
     }
 
 
@@ -108,7 +113,7 @@ public class BlockServiceImpl implements BlockService {
         existingBlock.setStatus(dto.getStatus());
         Block updatedBlock = repository.save(existingBlock);
 
-        return new BlockDTO(updatedBlock);
+        return blockMapper.blockToBlockDTO(updatedBlock);
     }
 
     @Override

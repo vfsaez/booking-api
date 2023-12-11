@@ -3,6 +3,7 @@ package com.victorsaez.bookingapi.services.impl;
 import com.victorsaez.bookingapi.dto.ClientDTO;
 import com.victorsaez.bookingapi.entities.Client;
 import com.victorsaez.bookingapi.exceptions.ClientNotFoundException;
+import com.victorsaez.bookingapi.mappers.ClientMapper;
 import com.victorsaez.bookingapi.repositories.ClientRepository;
 import com.victorsaez.bookingapi.services.ClientService;
 import org.springframework.stereotype.Service;
@@ -15,26 +16,30 @@ public class ClientServiceImpl implements ClientService {
 
     public ClientRepository repository;
 
+    private final ClientMapper clientMapper = ClientMapper.INSTANCE;
+
     public ClientServiceImpl(ClientRepository repository) {
         this.repository = repository;
     }
 
     @Override
     public List<ClientDTO> findAll() {
-        List<Client> list = repository.findAll();
-        return list.stream().map(ClientDTO::new).collect(Collectors.toList());
+        List<Client> clients = repository.findAll();
+        return clients.stream()
+                .map(clientMapper::clientToClientDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
     public ClientDTO findById(Long id) throws ClientNotFoundException {
-        return new ClientDTO(repository.findById(id)
+        return clientMapper.clientToClientDTO(repository.findById(id)
                 .orElseThrow(() -> new ClientNotFoundException(id)));
     }
 
     @Override
     public ClientDTO insert(ClientDTO dto) {
         Client clientToSave = repository.save(new Client(dto));
-        return new ClientDTO(clientToSave);
+        return clientMapper.clientToClientDTO(clientToSave);
     }
 
     @Override
@@ -47,7 +52,7 @@ public class ClientServiceImpl implements ClientService {
 
         Client updatedClient = repository.save(existingClient);
 
-        return new ClientDTO(updatedClient);
+        return clientMapper.clientToClientDTO(updatedClient);
     }
 
     @Override

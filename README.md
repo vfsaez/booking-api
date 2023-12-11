@@ -1,6 +1,7 @@
 ### Swagger Documentation:
 
-available at /swagger-ui.html endpoint.
+This is a simple REST API for the management and booking of properties
+The API is documented using Swagger and the documentation is available at the /swagger-ui.html endpoint.
 
 http://localhost:8080/swagger-ui.html
 
@@ -21,3 +22,16 @@ Start the server using
 ```shell script
 mvn spring-boot:run
 ```
+
+to test the endpoints, use the following command:
+```shell script
+mvn test
+```
+
+---------------------------
+
+The API implements a simple authentication and authorization scheme using JWT
+Endpoints require User to be logged in to access them, except the session creation/login endpoint
+There are two test files as examples
+ 
+
