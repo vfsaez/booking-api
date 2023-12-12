@@ -1,4 +1,4 @@
-package com.victorsaez.bookingapi.services;
+package com.victorsaez.bookingapi.config;
 
 import com.victorsaez.bookingapi.config.CustomSpringUser;
 import com.victorsaez.bookingapi.entities.User;
