@@ -22,6 +22,6 @@ public class Client {
     private int totalRentals;
 
     @ManyToOne
-    @JoinColumn(name = "owner_id", nullable = true)
+    @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 }
