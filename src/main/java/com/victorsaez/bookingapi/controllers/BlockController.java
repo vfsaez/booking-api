@@ -94,7 +94,8 @@ public class BlockController {
             @ApiResponse(responseCode = "404", description = "Block not found."),
             @ApiResponse(responseCode = "400", description = "Invalid request.")
     })
-    public void delete(@PathVariable Long id, @Parameter(hidden = true) @AuthenticationPrincipal UserDetails currentUserDetails) {
+    public ResponseEntity<Void> delete(@PathVariable Long id, @Parameter(hidden = true) @AuthenticationPrincipal UserDetails currentUserDetails) {
         service.delete(id, currentUserDetails);
+        return ResponseEntity.noContent().build();
     }
 }

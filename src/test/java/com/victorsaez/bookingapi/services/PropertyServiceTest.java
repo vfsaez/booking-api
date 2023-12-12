@@ -1,4 +1,4 @@
-package com.victorsaez.bookingapi.services.impl;
+package com.victorsaez.bookingapi.services;
 
 import com.victorsaez.bookingapi.config.CustomSpringUser;
 import com.victorsaez.bookingapi.dto.PropertyDTO;
@@ -51,7 +51,7 @@ public class PropertyServiceTest {
     }
 
     @Test
-    public void testCheckPropertyAvailabilityOnPeriod_NoError() {
+    public void shouldNotThrowExceptionWhenPropertyIsAvailable() {
         Property property = new Property();
         property.setId(1L);
         Date startDate = new Date();
@@ -67,7 +67,7 @@ public class PropertyServiceTest {
     }
 
     @Test
-    public void testCheckPropertyAvailabilityOnPeriod_ErrorExpected() {
+    public void shouldThrowExceptionWhenPropertyIsNotAvailable() {
         Property property = new Property();
         property.setId(1L);
         Date startDate = new Date();
@@ -83,7 +83,7 @@ public class PropertyServiceTest {
     }
 
     @Test
-    public void ShouldFindAll() {
+    public void shouldReturnAllProperties() {
         Property property = new Property();
         property.setId(1L);
         // set other fields as necessary
@@ -103,7 +103,7 @@ public class PropertyServiceTest {
     }
 
     @Test
-    public void shouldFindAllByOwnerId() {
+    public void shouldReturnAllPropertiesByOwnerId() {
         Property property = new Property();
         property.setId(1L);
         // set other fields as necessary

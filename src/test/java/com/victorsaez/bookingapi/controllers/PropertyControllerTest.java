@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -105,5 +106,14 @@ public class PropertyControllerTest {
                         .content(new ObjectMapper().writeValueAsString(updatedProperty)))
                 .andExpect(status().isOk())
                 .andExpect(content().json("{\"id\":1,\"name\":\"Updated Property\"}"));
+    }
+
+    @Test
+    public void shouldDeleteProperty() throws Exception {
+        Mockito.doNothing().when(propertyService).delete(anyLong(), any(UserDetails.class));
+
+        mockMvc.perform(delete("/properties/{id}", 1L)
+                        .with(user("testUser").roles("USER")))
+                .andExpect(status().isNoContent());
     }
 }
