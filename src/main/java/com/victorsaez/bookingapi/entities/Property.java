@@ -24,4 +24,7 @@ public class Property {
     @Column(nullable = false)
     private Double price;
 
+    @ManyToOne
+    @JoinColumn(name = "owner_id", nullable = true)
+    private User owner;
 }

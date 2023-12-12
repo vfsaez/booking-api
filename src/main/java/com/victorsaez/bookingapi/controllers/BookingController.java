@@ -4,6 +4,7 @@ import com.victorsaez.bookingapi.dto.BookingDTO;
 import com.victorsaez.bookingapi.entities.Booking;
 import com.victorsaez.bookingapi.services.BookingService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,7 +34,7 @@ public class BookingController {
     @GetMapping
     @Operation(summary = "Returns all bookings in database.")
     @ApiResponse(responseCode = "200", description = "OK.")
-    public ResponseEntity<Page<BookingDTO>> findAll(Pageable pageable, @AuthenticationPrincipal UserDetails currentUserDetails) {
+    public ResponseEntity<Page<BookingDTO>> findAll(Pageable pageable, @Parameter(hidden = true) @AuthenticationPrincipal UserDetails currentUserDetails) {
          return ResponseEntity.ok().body(service.findAll(pageable, currentUserDetails));
     }
 
@@ -43,7 +44,7 @@ public class BookingController {
             @ApiResponse(responseCode = "200", description = "OK."),
             @ApiResponse(responseCode = "404", description = "Booking not found.")
     })
-    public ResponseEntity<BookingDTO> findById(@PathVariable Long id, @AuthenticationPrincipal UserDetails currentUserDetails) {
+    public ResponseEntity<BookingDTO> findById(@PathVariable Long id, @Parameter(hidden = true) @AuthenticationPrincipal UserDetails currentUserDetails) {
         return ResponseEntity.ok().body(service.findById(id, currentUserDetails));
     }
 
@@ -53,7 +54,7 @@ public class BookingController {
             @ApiResponse(responseCode = "201", description = "Booking created with success."),
             @ApiResponse(responseCode = "400", description = "Property \"name\" Id: 4  - not available trough given dates: Thu Dec 07 18:24:31 BRT 2023 - Thu Dec 07 18:24:31 BRT 2023")
     })
-    public ResponseEntity<BookingDTO> insert(@RequestBody @Valid BookingDTO booking, @AuthenticationPrincipal UserDetails currentUserDetails) {
+    public ResponseEntity<BookingDTO> insert(@RequestBody @Valid BookingDTO booking, @Parameter(hidden = true) @AuthenticationPrincipal UserDetails currentUserDetails) {
         var createdBooking = service.insert(booking, currentUserDetails);
         var uri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -72,7 +73,7 @@ public class BookingController {
             @ApiResponse(responseCode = "404", description = "Booking not found."),
             @ApiResponse(responseCode = "400", description = "Property \"name\" Id: 4  - not available trough given dates: Thu Dec 07 18:24:31 BRT 2023 - Thu Dec 07 18:24:31 BRT 2023")
     })
-    public ResponseEntity<BookingDTO> update(@PathVariable Long id, @RequestBody @Valid BookingDTO booking, @AuthenticationPrincipal UserDetails currentUserDetails) {
+    public ResponseEntity<BookingDTO> update(@PathVariable Long id, @RequestBody @Valid BookingDTO booking, @Parameter(hidden = true) @AuthenticationPrincipal UserDetails currentUserDetails) {
         booking.setId(id);
         var updatedBooking = service.update(booking, currentUserDetails);
         return ResponseEntity.ok().body(updatedBooking);
@@ -85,7 +86,7 @@ public class BookingController {
             @ApiResponse(responseCode = "404", description = "Booking not found."),
             @ApiResponse(responseCode = "400", description = "Invalid request.")
     })
-    public void delete(@PathVariable Long id, @AuthenticationPrincipal UserDetails currentUserDetails) {
+    public void delete(@PathVariable Long id, @Parameter(hidden = true) @AuthenticationPrincipal UserDetails currentUserDetails) {
         service.delete(id, currentUserDetails);
     }
 }

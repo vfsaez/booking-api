@@ -1,5 +1,6 @@
 package com.victorsaez.bookingapi.services;
 
+import com.victorsaez.bookingapi.config.CustomSpringUser;
 import com.victorsaez.bookingapi.dto.BlockDTO;
 import com.victorsaez.bookingapi.entities.Block;
 import com.victorsaez.bookingapi.entities.Booking;
@@ -7,10 +8,7 @@ import com.victorsaez.bookingapi.entities.Client;
 import com.victorsaez.bookingapi.entities.Property;
 import com.victorsaez.bookingapi.enums.BlockStatus;
 import com.victorsaez.bookingapi.enums.BookingStatus;
-import com.victorsaez.bookingapi.exceptions.BlockNotFoundException;
-import com.victorsaez.bookingapi.exceptions.ClientNotFoundException;
-import com.victorsaez.bookingapi.exceptions.PropertyNotAvailableException;
-import com.victorsaez.bookingapi.exceptions.PropertyNotFoundException;
+import com.victorsaez.bookingapi.exceptions.*;
 import com.victorsaez.bookingapi.mappers.BlockMapper;
 import com.victorsaez.bookingapi.repositories.BlockRepository;
 import com.victorsaez.bookingapi.repositories.ClientRepository;
@@ -51,12 +49,13 @@ public class BlockService {
     }
 
     public BlockDTO insert(BlockDTO dto, UserDetails currentUserDetails) {
+        CustomSpringUser customCurrentUserDetails = (CustomSpringUser) currentUserDetails;
         Property property = propertyRepository.findById(dto.getProperty().getId())
                 .orElseThrow(() -> new PropertyNotFoundException(dto.getProperty().getId()));
 
         Block block = blockMapper.blockDTOtoBlock(dto);
         block.setProperty(property);
-
+        block.setOwner(customCurrentUserDetails.getUser());
         propertyService.checkPropertyAvailabilityOnPeriod(property, dto.getStartDate(), dto.getEndDate());
         Block createdBlock = repository.save(block);
 
@@ -65,6 +64,7 @@ public class BlockService {
 
 
     public BlockDTO update(BlockDTO dto, UserDetails currentUserDetails) {
+        CustomSpringUser customCurrentUserDetails = (CustomSpringUser) currentUserDetails;
         Block existingBlock = repository.findById(dto.getId())
                 .orElseThrow(() -> new BlockNotFoundException(dto.getId()));
 
@@ -78,6 +78,9 @@ public class BlockService {
         existingBlock.setStartDate(dto.getStartDate());
         existingBlock.setEndDate(dto.getEndDate());
         existingBlock.setStatus(dto.getStatus());
+        if (!existingBlock.getOwner().getId().equals(customCurrentUserDetails.getId())) {
+            throw new AccessDeniedException(dto.getId(), customCurrentUserDetails.getId());
+        }
         Block updatedBlock = repository.save(existingBlock);
 
         return blockMapper.blockToBlockDTO(updatedBlock);

@@ -3,6 +3,7 @@ package com.victorsaez.bookingapi.controllers;
 import com.victorsaez.bookingapi.dto.PropertyDTO;
 import com.victorsaez.bookingapi.services.PropertyService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -32,7 +33,7 @@ public class PropertyController {
     @GetMapping
     @Operation(summary = "Returns all properties in database.")
     @ApiResponse(responseCode = "200", description = "OK.")
-    public ResponseEntity<Page<PropertyDTO>> findAll(Pageable pageable, @AuthenticationPrincipal UserDetails currentUserDetails) {
+    public ResponseEntity<Page<PropertyDTO>> findAll(Pageable pageable, @Parameter(hidden = true) @AuthenticationPrincipal UserDetails currentUserDetails) {
         return ResponseEntity.ok().body(service.findAll(pageable, currentUserDetails));
     }
 
@@ -42,7 +43,7 @@ public class PropertyController {
             @ApiResponse(responseCode = "200", description = "OK."),
             @ApiResponse(responseCode = "404", description = "Property not found.")
     })
-    public ResponseEntity<PropertyDTO> findById(@PathVariable Long id, @AuthenticationPrincipal UserDetails currentUserDetails) {
+    public ResponseEntity<PropertyDTO> findById(@PathVariable Long id, @Parameter(hidden = true) @AuthenticationPrincipal UserDetails currentUserDetails) {
            return ResponseEntity.ok().body(service.findById(id, currentUserDetails));
     }
 
@@ -53,7 +54,7 @@ public class PropertyController {
             @ApiResponse(responseCode = "404", description = "Property not found."),
             @ApiResponse(responseCode = "400", description = "Invalid request.")
     })
-    public void delete(@PathVariable Long id, @AuthenticationPrincipal UserDetails currentUserDetails) {
+    public void delete(@PathVariable Long id, @Parameter(hidden = true) @AuthenticationPrincipal UserDetails currentUserDetails) {
         service.delete(id, currentUserDetails);
     }
 
@@ -63,7 +64,7 @@ public class PropertyController {
             @ApiResponse(responseCode = "201", description = "Property created with success."),
             @ApiResponse(responseCode = "400", description = "Invalid request.")
     })
-    public ResponseEntity<PropertyDTO> insert(@RequestBody @Valid PropertyDTO property, @AuthenticationPrincipal UserDetails currentUserDetails) {
+    public ResponseEntity<PropertyDTO> insert(@RequestBody @Valid PropertyDTO property, @Parameter(hidden = true) @AuthenticationPrincipal UserDetails currentUserDetails) {
         var createdProperty = service.insert(property, currentUserDetails);
         var uri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -82,7 +83,7 @@ public class PropertyController {
             @ApiResponse(responseCode = "404", description = "Property not found."),
             @ApiResponse(responseCode = "400", description = "Invalid request.")
     })
-    public ResponseEntity<PropertyDTO> update(@PathVariable Long id, @RequestBody @Valid PropertyDTO property, @AuthenticationPrincipal UserDetails currentUserDetails) {
+    public ResponseEntity<PropertyDTO> update(@PathVariable Long id, @RequestBody @Valid PropertyDTO property, @Parameter(hidden = true) @AuthenticationPrincipal UserDetails currentUserDetails) {
         property.setId(id);
         var updatedProperty = service.update(property, currentUserDetails);
         return ResponseEntity.ok().body(updatedProperty);

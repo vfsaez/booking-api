@@ -4,6 +4,7 @@ import com.victorsaez.bookingapi.dto.PropertyDTO;
 import com.victorsaez.bookingapi.dto.ClientDTO;
 import com.victorsaez.bookingapi.services.ClientService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -32,7 +33,7 @@ public class ClientController {
     @Operation(summary = "Returns all clients in database.")
     @ApiResponse(responseCode =  "200", description = "OK")
     @GetMapping
-    public ResponseEntity<Page<ClientDTO>> findAll(Pageable pageable, @AuthenticationPrincipal UserDetails currentUserDetails) {
+    public ResponseEntity<Page<ClientDTO>> findAll(Pageable pageable, @Parameter(hidden = true) @AuthenticationPrincipal UserDetails currentUserDetails) {
         return ResponseEntity.ok().body(service.findAll(pageable, currentUserDetails));
     }
 
@@ -42,7 +43,7 @@ public class ClientController {
             @ApiResponse(responseCode =  "200", description = "OK."),
             @ApiResponse(responseCode =  "404", description = "Client not found.")
     })
-    public ResponseEntity<ClientDTO> findById(@PathVariable Long id, @AuthenticationPrincipal UserDetails currentUserDetails) {
+    public ResponseEntity<ClientDTO> findById(@PathVariable Long id, @Parameter(hidden = true) @AuthenticationPrincipal UserDetails currentUserDetails) {
         return ResponseEntity.ok().body(service.findById(id, currentUserDetails));
     }
 
@@ -52,7 +53,7 @@ public class ClientController {
             @ApiResponse(responseCode =  "201", description = "Client created with success."),
             @ApiResponse(responseCode =  "400", description = "Invalid request.")
     })
-    public ResponseEntity<ClientDTO> insert(@RequestBody @Valid ClientDTO client, @AuthenticationPrincipal UserDetails currentUserDetails) {
+    public ResponseEntity<ClientDTO> insert(@RequestBody @Valid ClientDTO client, @Parameter(hidden = true) @AuthenticationPrincipal UserDetails currentUserDetails) {
         var createdClient = service.insert(client, currentUserDetails);
         var uri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -71,7 +72,7 @@ public class ClientController {
             @ApiResponse(responseCode = "404", description = "Client not found."),
             @ApiResponse(responseCode = "400", description = "Invalid request.")
     })
-    public ResponseEntity<ClientDTO> update(@PathVariable Long id, @RequestBody @Valid ClientDTO client, @AuthenticationPrincipal UserDetails currentUserDetails) {
+    public ResponseEntity<ClientDTO> update(@PathVariable Long id, @RequestBody @Valid ClientDTO client, @Parameter(hidden = true) @AuthenticationPrincipal UserDetails currentUserDetails) {
         client.setId(id);
         var updatedClient = service.update(client, currentUserDetails);
         return ResponseEntity.ok().body(updatedClient);
@@ -84,7 +85,7 @@ public class ClientController {
             @ApiResponse(responseCode =  "404", description = "Client not found."),
             @ApiResponse(responseCode =  "400", description = "Invalid request.")
     })
-    public ResponseEntity<Void> delete(@PathVariable Long id, @AuthenticationPrincipal UserDetails currentUserDetails) {
+    public ResponseEntity<Void> delete(@PathVariable Long id, @Parameter(hidden = true) @AuthenticationPrincipal UserDetails currentUserDetails) {
         service.delete(id, currentUserDetails);
         return ResponseEntity.noContent().build();
     }

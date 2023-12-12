@@ -37,6 +37,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                     .collect(Collectors.toList());
         CustomSpringUser customSpringUser = new CustomSpringUser(user.getUsername(), user.getPassword(), authorities);
         customSpringUser.setId(user.getId());
+        customSpringUser.setUser(user);
         return customSpringUser;
     }
 

@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -54,6 +55,7 @@ public class BookingService {
     }
 
     public BookingDTO insert(BookingDTO dto, UserDetails currentUserDetails) {
+        CustomSpringUser customCurrentUserDetails = (CustomSpringUser) currentUserDetails;
         Client client = clientRepository.findById(dto.getClientId())
                 .orElseThrow(() -> new ClientNotFoundException(dto.getClientId()));
         Property property = propertyRepository.findById(dto.getPropertyId())
@@ -63,7 +65,7 @@ public class BookingService {
         Booking booking = bookingMapper.bookingDTOtoBooking(dto);
         booking.setClient(client);
         booking.setProperty(property);
-
+        booking.setOwner(customCurrentUserDetails.getUser());
         Booking createdBooking = repository.save(booking);
 
         logger.info("user {} Booking id {} created for property id {} and client id {}", ((CustomSpringUser) currentUserDetails).getId(), createdBooking.getId(), createdBooking.getProperty().getId(), createdBooking.getClient().getId());
@@ -71,7 +73,8 @@ public class BookingService {
     }
 
 
-    public BookingDTO update(BookingDTO dto, UserDetails currentUserDetails) {
+    public BookingDTO update(BookingDTO dto, UserDetails currentUserDetails) throws AccessDeniedException, PropertyNotAvailableException, PropertyNotFoundException, BookingNotFoundException {
+        CustomSpringUser customCurrentUserDetails = (CustomSpringUser) currentUserDetails;
         Booking existingBooking = repository.findById(dto.getId())
                 .orElseThrow(() -> new BookingNotFoundException(dto.getId()));
 
@@ -85,9 +88,12 @@ public class BookingService {
         existingBooking.setStartDate(dto.getStartDate());
         existingBooking.setEndDate(dto.getEndDate());
         existingBooking.setStatus(dto.getStatus());
+        if (!existingBooking.getOwner().getId().equals(customCurrentUserDetails.getId())) {
+            throw new AccessDeniedException(dto.getId(), customCurrentUserDetails.getId());
+        }
         Booking updatedBooking = repository.save(existingBooking);
 
-        logger.info("user {} Booking id {} created for property id {} and client id {}", ((CustomSpringUser) currentUserDetails).getId(), updatedBooking.getId(), updatedBooking.getProperty().getId(), updatedBooking.getClient().getId());
+        logger.info("user {} Booking id {} created for property id {} and client id {}", customCurrentUserDetails.getId(), updatedBooking.getId(), updatedBooking.getProperty().getId(), updatedBooking.getClient().getId());
         return bookingMapper.bookingToBookingDTO(updatedBooking);
     }
 

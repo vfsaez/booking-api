@@ -9,8 +9,18 @@ import java.util.Collection;
 public class CustomSpringUser extends User {
 
     private Long id;
+
+    private com.victorsaez.bookingapi.entities.User user;
+
     public CustomSpringUser(String username, String password, Collection<? extends GrantedAuthority> authorities) {
         super(username, password, authorities);
+    }
+
+    public void setUser(com.victorsaez.bookingapi.entities.User user) {
+        this.user = user;
+    }
+    public com.victorsaez.bookingapi.entities.User getUser() {
+        return user;
     }
 
     public Long getId() {
@@ -20,4 +30,6 @@ public class CustomSpringUser extends User {
     public void setId(Long id) {
         this.id = id;
     }
+
+
 }
