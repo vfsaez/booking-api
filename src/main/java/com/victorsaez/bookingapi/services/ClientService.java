@@ -30,18 +30,22 @@ public class ClientService {
     }
 
     public Page<ClientDTO> findAll(Pageable pageable, UserDetails currentUserDetails) {
-        User owner = ((CustomSpringUser) currentUserDetails).getUser();
-        Page<Client> clients = repository.findAllByOwnerId(pageable, owner.getId());
+        CustomSpringUser customSpringUser = (CustomSpringUser) currentUserDetails;
+        Page<Client> clients = customSpringUser.isAdmin() ?
+                repository.findAll(pageable):
+                repository.findAllByOwnerId(customSpringUser.getId(), pageable);
         return clients.map(clientMapper::clientToClientDTO);
     }
 
     public ClientDTO findById(Long id, UserDetails currentUserDetails) throws ClientNotFoundException {
+        CustomSpringUser customCurrentUserDetails = (CustomSpringUser) currentUserDetails;
         return clientMapper.clientToClientDTO(repository.findById(id).map(client -> {
-            if (client.getOwner().getId().equals(((CustomSpringUser) currentUserDetails).getId())) {
+            if (customCurrentUserDetails.isAdmin() || client.getOwner().getId().equals(((CustomSpringUser) currentUserDetails).getId())) {
                 return client;
             } else {
                 throw new AccessDeniedException(id, ((CustomSpringUser) currentUserDetails).getId());
-            }}).orElseThrow(() -> new ClientNotFoundException(id)));
+            }
+        }).orElseThrow(() -> new ClientNotFoundException(id)));
     }
 
     public ClientDTO insert(ClientDTO dto, UserDetails currentUserDetails) {
@@ -60,7 +64,8 @@ public class ClientService {
 
         existingClient.setName(dto.getName());
 
-        if (!customCurrentUserDetails.getAuthorities().contains("ROLE_ADMIN") && !existingClient.getOwner().getId().equals(customCurrentUserDetails.getId())) {
+        if (!customCurrentUserDetails.isAdmin()
+                && !existingClient.getOwner().getId().equals(customCurrentUserDetails.getId())) {
             throw new AccessDeniedException(dto.getId(), customCurrentUserDetails.getId());
         }
 

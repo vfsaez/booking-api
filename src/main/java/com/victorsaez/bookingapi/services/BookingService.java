@@ -44,14 +44,21 @@ public class BookingService {
     }
 
     public Page<BookingDTO> findAll(Pageable pageable, UserDetails currentUserDetails) {
-        Page<Booking> bookings = repository.findAll(pageable);
-
+        CustomSpringUser customSpringUser = (CustomSpringUser) currentUserDetails;
+        Page<Booking> bookings = customSpringUser.isAdmin() ?
+                repository.findAll(pageable):
+                repository.findAllByOwnerId(customSpringUser.getId(), pageable);
         return bookings.map(bookingMapper::bookingToBookingDTO);
     }
 
     public BookingDTO findById(Long id, UserDetails currentUserDetails) {
-        return bookingMapper.bookingToBookingDTO(repository.findById(id)
-                .orElseThrow(() -> new BookingNotFoundException(id)));
+        CustomSpringUser customCurrentUserDetails = (CustomSpringUser) currentUserDetails;
+        return bookingMapper.bookingToBookingDTO(repository.findById(id).map(booking -> {
+            if (customCurrentUserDetails.isAdmin() || booking.getOwner().getId().equals(((CustomSpringUser) currentUserDetails).getId())) {
+                return booking;
+            } else {
+                throw new AccessDeniedException(id, ((CustomSpringUser) currentUserDetails).getId());
+            }}).orElseThrow(() -> new BookingNotFoundException(id)));
     }
 
     public BookingDTO insert(BookingDTO dto, UserDetails currentUserDetails) {
@@ -88,9 +95,12 @@ public class BookingService {
         existingBooking.setStartDate(dto.getStartDate());
         existingBooking.setEndDate(dto.getEndDate());
         existingBooking.setStatus(dto.getStatus());
-        if (!existingBooking.getOwner().getId().equals(customCurrentUserDetails.getId())) {
+
+        if (!customCurrentUserDetails.isAdmin()
+                && !existingBooking.getOwner().getId().equals(customCurrentUserDetails.getId())) {
             throw new AccessDeniedException(dto.getId(), customCurrentUserDetails.getId());
         }
+
         Booking updatedBooking = repository.save(existingBooking);
 
         logger.info("user {} Booking id {} created for property id {} and client id {}", customCurrentUserDetails.getId(), updatedBooking.getId(), updatedBooking.getProperty().getId(), updatedBooking.getClient().getId());

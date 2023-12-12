@@ -4,6 +4,7 @@ import com.victorsaez.bookingapi.config.CustomSpringUser;
 import com.victorsaez.bookingapi.dto.UserDTO;
 import com.victorsaez.bookingapi.entities.User;
 import com.victorsaez.bookingapi.exceptions.AccessDeniedException;
+import com.victorsaez.bookingapi.exceptions.ClientNotFoundException;
 import com.victorsaez.bookingapi.exceptions.UserNotFoundException;
 import com.victorsaez.bookingapi.mappers.UserMapper;
 import com.victorsaez.bookingapi.repositories.UserRepository;
@@ -28,19 +29,31 @@ public class UserService {
     }
 
     public Page<UserDTO> findAll(Pageable pageable, UserDetails currentUserDetails) {
+        CustomSpringUser customCurrentUserDetails = (CustomSpringUser) currentUserDetails;
+
+        if (!customCurrentUserDetails.isAdmin()) {
+            throw new AccessDeniedException(customCurrentUserDetails.getId());
+        }
+
         Page<User> users = repository.findAll(pageable);
         return users.map(userMapper::userToUserDTO);
     }
 
     public UserDTO findById(Long id, UserDetails currentUserDetails) throws UserNotFoundException {
-        return userMapper.userToUserDTO(repository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException(id)));
+        CustomSpringUser customCurrentUserDetails = (CustomSpringUser) currentUserDetails;
+        return userMapper.userToUserDTO(repository.findById(id).map(user -> {
+            if (customCurrentUserDetails.isAdmin() || user.getId().equals(((CustomSpringUser) currentUserDetails).getId())) {
+                return user;
+            } else {
+                throw new AccessDeniedException(id, ((CustomSpringUser) currentUserDetails).getId());
+            }}).orElseThrow(() -> new UserNotFoundException(id)));
     }
 
     public UserDTO insert(UserDTO dto, UserDetails currentUserDetails) {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         String hashedPassword = passwordEncoder.encode("user");
         dto.setPassword(hashedPassword);
+
         var userSaved = repository.save(userMapper.userDTOtoUser(dto));
         return userMapper.userToUserDTO(userSaved);
     }
@@ -53,7 +66,12 @@ public class UserService {
         existingUser.setUsername(dto.getUsername());
         existingUser.setPassword(dto.getPassword());
         existingUser.setName(dto.getName());
-        if (customCurrentUserDetails.getAuthorities().stream().noneMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"))
+
+        if(customCurrentUserDetails.isAdmin()) {
+            existingUser.setRoles(dto.getRoles());
+        }
+
+        if (!customCurrentUserDetails.isAdmin()
                 && !existingUser.getId().equals(customCurrentUserDetails.getId())) {
             throw new AccessDeniedException(dto.getId(), customCurrentUserDetails.getId());
         }

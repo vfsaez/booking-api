@@ -1,11 +1,14 @@
 package com.victorsaez.bookingapi.services;
 
+import com.victorsaez.bookingapi.config.CustomSpringUser;
 import com.victorsaez.bookingapi.dto.PropertyDTO;
 import com.victorsaez.bookingapi.entities.Block;
 import com.victorsaez.bookingapi.entities.Booking;
 import com.victorsaez.bookingapi.entities.Property;
 import com.victorsaez.bookingapi.enums.BlockStatus;
 import com.victorsaez.bookingapi.enums.BookingStatus;
+import com.victorsaez.bookingapi.exceptions.AccessDeniedException;
+import com.victorsaez.bookingapi.exceptions.ClientNotFoundException;
 import com.victorsaez.bookingapi.exceptions.PropertyNotAvailableException;
 import com.victorsaez.bookingapi.exceptions.PropertyNotFoundException;
 import com.victorsaez.bookingapi.mappers.PropertyMapper;
@@ -39,17 +42,28 @@ public class PropertyService {
     }
 
     public Page<PropertyDTO> findAll(Pageable pageable, UserDetails currentUserDetails) {
-        Page<Property> properties = repository.findAll(pageable);
+        CustomSpringUser customCurrentUserDetails = (CustomSpringUser) currentUserDetails;
+        Page<Property> properties = customCurrentUserDetails.isAdmin() ?
+                repository.findAll(pageable) :
+                repository.findAllByOwnerId(pageable, customCurrentUserDetails.getId());
         return properties.map(propertyMapper::propertyToPropertyDTO);
     }
 
     public PropertyDTO findById(Long id, UserDetails currentUserDetails) throws PropertyNotFoundException {
-        return propertyMapper.propertyToPropertyDTO(repository.findById(id)
-                .orElseThrow(() -> new PropertyNotFoundException(id)));
+        CustomSpringUser customCurrentUserDetails = (CustomSpringUser) currentUserDetails;
+        return propertyMapper.propertyToPropertyDTO(repository.findById(id).map(property -> {
+            if (customCurrentUserDetails.isAdmin() || property.getOwner().getId().equals(((CustomSpringUser) currentUserDetails).getId())) {
+                return property;
+            } else {
+                throw new AccessDeniedException(id, ((CustomSpringUser) currentUserDetails).getId());
+            }}).orElseThrow(() -> new PropertyNotFoundException(id)));
     }
 
     public PropertyDTO insert(PropertyDTO dto, UserDetails currentUserDetails) {
-        var propertySaved = repository.save(propertyMapper.propertyDTOtoProperty(dto));
+        CustomSpringUser customCurrentUserDetails = (CustomSpringUser) currentUserDetails;
+        Property propertyToSave = propertyMapper.propertyDTOtoProperty(dto);
+        propertyToSave.setOwner(customCurrentUserDetails.getUser());
+        var propertySaved = repository.save(propertyToSave);
         return propertyMapper.propertyToPropertyDTO(propertySaved);
     }
 
@@ -70,11 +84,17 @@ public class PropertyService {
     }
 
     public PropertyDTO update(PropertyDTO dto, UserDetails currentUserDetails) {
+        CustomSpringUser customCurrentUserDetails = (CustomSpringUser) currentUserDetails;
         Property existingProperty = repository.findById(dto.getId())
                 .orElseThrow(() -> new PropertyNotFoundException(dto.getId()));
 
         existingProperty.setName(dto.getName());
         existingProperty.setPrice(dto.getPrice());
+
+        if (!customCurrentUserDetails.isAdmin()
+                && !existingProperty.getOwner().getId().equals(customCurrentUserDetails.getId())) {
+            throw new AccessDeniedException(dto.getId(), customCurrentUserDetails.getId());
+        }
 
         Property updatedProperty = repository.save(existingProperty);
 

@@ -39,13 +39,21 @@ public class BlockService {
     }
 
     public Page<BlockDTO> findAll(Pageable pageable, UserDetails currentUserDetails) {
-        Page<Block> blocks = repository.findAll(pageable);
+        CustomSpringUser customSpringUser = (CustomSpringUser) currentUserDetails;
+        Page<Block> blocks = customSpringUser.isAdmin() ?
+                repository.findAll(pageable):
+                repository.findAllByOwnerId(customSpringUser.getId(), pageable);
         return blocks.map(blockMapper::blockToBlockDTO);
     }
 
     public BlockDTO findById(Long id, UserDetails currentUserDetails) {
-        return blockMapper.blockToBlockDTO(repository.findById(id)
-                .orElseThrow(() -> new BlockNotFoundException(id)));
+        CustomSpringUser customCurrentUserDetails = (CustomSpringUser) currentUserDetails;
+        return blockMapper.blockToBlockDTO(repository.findById(id).map(block -> {
+            if (customCurrentUserDetails.isAdmin() || block.getOwner().getId().equals(((CustomSpringUser) currentUserDetails).getId())) {
+                return block;
+            } else {
+                throw new AccessDeniedException(id, ((CustomSpringUser) currentUserDetails).getId());
+            }}).orElseThrow(() -> new BlockNotFoundException(id)));
     }
 
     public BlockDTO insert(BlockDTO dto, UserDetails currentUserDetails) {
@@ -78,7 +86,8 @@ public class BlockService {
         existingBlock.setStartDate(dto.getStartDate());
         existingBlock.setEndDate(dto.getEndDate());
         existingBlock.setStatus(dto.getStatus());
-        if (!existingBlock.getOwner().getId().equals(customCurrentUserDetails.getId())) {
+        if (!customCurrentUserDetails.isAdmin()
+                && !existingBlock.getOwner().getId().equals(customCurrentUserDetails.getId())) {
             throw new AccessDeniedException(dto.getId(), customCurrentUserDetails.getId());
         }
         Block updatedBlock = repository.save(existingBlock);

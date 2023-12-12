@@ -31,5 +31,8 @@ public class CustomSpringUser extends User {
         this.id = id;
     }
 
+    public Boolean isAdmin() {
+        return this.getAuthorities().stream().anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
+    }
 
 }

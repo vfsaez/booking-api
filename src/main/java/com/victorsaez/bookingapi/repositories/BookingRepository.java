@@ -12,4 +12,6 @@ import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findByPropertyAndStartDateLessThanEqualAndEndDateGreaterThanEqualAndStatusIsNot(Property property, Date endDate, Date startDate, BookingStatus status);
+    Page<Booking> findAllByOwnerId(Long ownerId, Pageable pageable);
+
 }
