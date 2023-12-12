@@ -45,7 +45,7 @@ public class PropertyService {
         CustomSpringUser customCurrentUserDetails = (CustomSpringUser) currentUserDetails;
         Page<Property> properties = customCurrentUserDetails.isAdmin() ?
                 repository.findAll(pageable) :
-                repository.findAllByOwnerId(pageable, customCurrentUserDetails.getId());
+                repository.findAllByOwnerId(customCurrentUserDetails.getId(), pageable);
         return properties.map(propertyMapper::propertyToPropertyDTO);
     }
 

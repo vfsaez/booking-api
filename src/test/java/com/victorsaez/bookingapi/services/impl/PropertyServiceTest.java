@@ -1,5 +1,6 @@
 package com.victorsaez.bookingapi.services.impl;
 
+import com.victorsaez.bookingapi.config.CustomSpringUser;
 import com.victorsaez.bookingapi.dto.PropertyDTO;
 import com.victorsaez.bookingapi.entities.Booking;
 import com.victorsaez.bookingapi.entities.Property;
@@ -16,13 +17,18 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import org.springframework.data.domain.Pageable;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 public class PropertyServiceTest {
@@ -77,17 +83,42 @@ public class PropertyServiceTest {
     }
 
     @Test
-    public void testFindAll() {
+    public void ShouldFindAll() {
         Property property = new Property();
         property.setId(1L);
         // set other fields as necessary
-        UserDetails mockUserDetails = Mockito.mock(UserDetails.class);
+        CustomSpringUser mockUserDetails = Mockito.mock(CustomSpringUser.class);
         Mockito.when(mockUserDetails.getUsername()).thenReturn("testUser");
-        when(propertyRepository.findAll()).thenReturn((List<Property>) Collections.singletonList(property));
+        Mockito.when(mockUserDetails.getId()).thenReturn(1L);
+        Mockito.when(mockUserDetails.isAdmin()).thenReturn(true);
+        List<Property> propertyList = Collections.singletonList(property);
+        Page<Property> propertyPage = new PageImpl<>(propertyList);
 
-        List<PropertyDTO> properties = propertyService.findAll(mockUserDetails);
+        when(propertyRepository.findAll(any(Pageable.class))).thenReturn(propertyPage);
 
-        assertEquals(1, properties.size());
-        assertEquals(1L, properties.get(0).getId());
+        Page<PropertyDTO> properties = propertyService.findAll(Pageable.unpaged(), mockUserDetails);
+
+        assertEquals(1, properties.getTotalElements());
+        assertEquals(1L, properties.getContent().get(0).getId());
+    }
+
+    @Test
+    public void shouldFindAllByOwnerId() {
+        Property property = new Property();
+        property.setId(1L);
+        // set other fields as necessary
+        CustomSpringUser mockUserDetails = Mockito.mock(CustomSpringUser.class);
+        Mockito.when(mockUserDetails.getUsername()).thenReturn("testUser");
+        Mockito.when(mockUserDetails.getId()).thenReturn(1L);
+        Mockito.when(mockUserDetails.isAdmin()).thenReturn(false);
+        List<Property> propertyList = Collections.singletonList(property);
+        Page<Property> propertyPage = new PageImpl<>(propertyList);
+
+        when(propertyRepository.findAllByOwnerId(anyLong(),any(Pageable.class))).thenReturn(propertyPage);
+
+        Page<PropertyDTO> properties = propertyService.findAll(Pageable.unpaged(), mockUserDetails);
+
+        assertEquals(1, properties.getTotalElements());
+        assertEquals(1L, properties.getContent().get(0).getId());
     }
 }

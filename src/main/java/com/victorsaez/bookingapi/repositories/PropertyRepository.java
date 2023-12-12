@@ -6,7 +6,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface PropertyRepository extends JpaRepository<Property, Long> {
-    Page<Property> findAllByOwnerId(Pageable pageable, Long ownerId);
     Page<Property> findAllByOwnerId(Long ownerId, Pageable pageable);
 
 }
