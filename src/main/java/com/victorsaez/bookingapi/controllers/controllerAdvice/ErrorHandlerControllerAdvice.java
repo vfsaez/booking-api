@@ -6,6 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -79,6 +80,18 @@ class ErrorHandlerControllerAdvice {
         error.setStatus(HttpStatus.BAD_REQUEST.value());
         error.getViolations().add(
                 new Violation("BadRequest", e.getMessage()));
+        return error;
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ResponseBody
+    ValidationErrorResponse onBadCredentialsException(
+            RuntimeException e) {
+        ValidationErrorResponse error = new ValidationErrorResponse();
+        error.setStatus(HttpStatus.UNAUTHORIZED.value());
+        error.getViolations().add(
+                new Violation("BadCredentialsException", e.getMessage()));
         return error;
     }
 

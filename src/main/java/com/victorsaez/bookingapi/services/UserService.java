@@ -56,9 +56,14 @@ public class UserService {
     }
 
     public UserDTO insert(UserDTO dto, UserDetails currentUserDetails) {
+        CustomUserDetails customCurrentUserDetails = (CustomUserDetails) currentUserDetails;
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        String hashedPassword = passwordEncoder.encode("user");
+        String hashedPassword = passwordEncoder.encode(dto.getPassword());
         dto.setPassword(hashedPassword);
+
+        if (!customCurrentUserDetails.isAdmin()){
+            throw new AccessDeniedException(customCurrentUserDetails.getId());
+        }
 
         var userSaved = repository.save(userMapper.userDTOtoUser(dto));
         return userMapper.userToUserDTO(userSaved);
@@ -68,6 +73,10 @@ public class UserService {
         CustomUserDetails customCurrentUserDetails = (CustomUserDetails) currentUserDetails;
         User existingUser = repository.findById(dto.getId())
                 .orElseThrow(() -> new UserNotFoundException(dto.getId()));
+
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String hashedPassword = passwordEncoder.encode(dto.getPassword());
+        dto.setPassword(hashedPassword);
 
         existingUser.setUsername(dto.getUsername());
         existingUser.setPassword(dto.getPassword());

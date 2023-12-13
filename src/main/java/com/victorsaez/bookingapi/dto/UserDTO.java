@@ -1,6 +1,7 @@
 package com.victorsaez.bookingapi.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.victorsaez.bookingapi.entities.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,6 +22,7 @@ public class UserDTO {
 
     @NotNull(message = "Password cannot be null")
     @Size(min = 6, max = 60, message = "Password must be between 6 and 60 characters")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
     @NotNull(message = "Name cannot be null")

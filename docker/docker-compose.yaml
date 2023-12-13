@@ -1,7 +1,7 @@
 version: "3.3"
 
 services:
-  booking_postgres_db:
+  booking_pgsql:
     build: ./postgres/
     restart: always
     env_file:
