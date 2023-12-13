@@ -58,19 +58,19 @@ public class PropertyControllerTest {
     }
 
     @Test
+    public void shouldReturnUnauthorizedWhenUserIsNotAuthenticated() throws Exception {
+        mockMvc.perform(get("/properties")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     public void shouldReturnAllProperties() throws Exception {
         mockMvc.perform(get("/properties")
                         .with(user("testUser").roles("USER"))  // Mock a user
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json("{\"content\":[{\"id\":1,\"name\":\"Test Property\",\"price\":5000}]}"));
-    }
-
-    @Test
-    public void shouldReturnUnauthorizedWhenUserIsNotAuthenticated() throws Exception {
-        mockMvc.perform(get("/properties")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isUnauthorized());
     }
 
     @Test

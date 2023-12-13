@@ -56,6 +56,13 @@ public class ClientControllerTest {
     }
 
     @Test
+    public void shouldReturnUnauthorizedWhenUserIsNotAuthenticated() throws Exception {
+        mockMvc.perform(get("/clients")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     public void shouldReturnAllClients() throws Exception {
         mockMvc.perform(get("/clients")
                         .with(user("testUser").roles("USER"))  // Mock a user

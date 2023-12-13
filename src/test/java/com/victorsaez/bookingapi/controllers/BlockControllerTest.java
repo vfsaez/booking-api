@@ -56,6 +56,13 @@ public class BlockControllerTest {
     }
 
     @Test
+    public void shouldReturnUnauthorizedWhenUserIsNotAuthenticated() throws Exception {
+        mockMvc.perform(get("/blocks")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     public void shouldReturnAllBlocks() throws Exception {
         mockMvc.perform(get("/blocks")
                         .with(user("testUser").roles("USER"))  // Mock a user

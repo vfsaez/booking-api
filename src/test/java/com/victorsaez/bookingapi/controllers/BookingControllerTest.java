@@ -55,6 +55,13 @@ public class BookingControllerTest {
     }
 
     @Test
+    public void shouldReturnUnauthorizedWhenUserIsNotAuthenticated() throws Exception {
+        mockMvc.perform(get("/bookings")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     public void shouldReturnAllBookings() throws Exception {
         mockMvc.perform(get("/bookings")
                         .with(user("testUser").roles("USER"))  // Mock a user
