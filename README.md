@@ -13,6 +13,14 @@ docker compose up -d
 ```
 This command above will automate the image build process for the PostgreSQL database, create the necessary database, and provide additional resources for testing the endpoints.
 
+Demo user credentials:
+username: user
+password: "user"
+
+Demo admin credentials:
+username: admin
+password: "user"
+
 
 ___________________________
 
@@ -35,7 +43,7 @@ Notes
 The API implements an authentication and authorization scheme using JWT
 Endpoints require User to be logged in to access them, except the session creation/login endpoint
 -- No public registration endpoint is provided
-There are two test files as examples
+
 
  
 

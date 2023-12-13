@@ -18,9 +18,6 @@ public class Client {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
-    private int totalRentals;
-
     @ManyToOne
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;

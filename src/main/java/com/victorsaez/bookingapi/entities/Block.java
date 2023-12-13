@@ -1,13 +1,11 @@
 package com.victorsaez.bookingapi.entities;
 
-import com.victorsaez.bookingapi.dto.BlockDTO;
 import com.victorsaez.bookingapi.enums.BlockStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.time.Instant;
 import java.util.Date;
 
 @Entity
@@ -31,7 +29,7 @@ public class Block {
     private BlockStatus status;
 
     @ManyToOne
-    @JoinColumn(name = "property_id")
+    @JoinColumn(name = "property_id", nullable = false)
     private Property property;
 
     @ManyToOne

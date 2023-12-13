@@ -37,11 +37,11 @@ public class Booking {
     @JoinColumn(name = "client_id")
     private Client client;
 
-    @Column(nullable = true)
+    @Column(nullable = false)
     private Double price;
 
     @ManyToOne
-    @JoinColumn(name = "property_id")
+    @JoinColumn(name = "property_id", nullable = false)
     private Property property;
 
     @ManyToOne

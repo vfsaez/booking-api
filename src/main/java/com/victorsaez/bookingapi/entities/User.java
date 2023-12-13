@@ -1,11 +1,12 @@
 package com.victorsaez.bookingapi.entities;
 
-import com.victorsaez.bookingapi.dto.UserDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -26,4 +27,10 @@ public class User {
     private String name;
 
     private String roles;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "owner")
+    private List<Client> clients = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "owner")
+    private List<Property> properties = new ArrayList<>();
 }
