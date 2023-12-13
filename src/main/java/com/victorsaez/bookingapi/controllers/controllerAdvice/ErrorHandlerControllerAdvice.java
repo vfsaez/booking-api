@@ -2,6 +2,8 @@ package com.victorsaez.bookingapi.controllers.controllerAdvice;
 
 import com.victorsaez.bookingapi.exceptions.AccessDeniedException;
 import com.victorsaez.bookingapi.exceptions.NotFoundException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -14,6 +16,10 @@ import javax.validation.ConstraintViolationException;
 
 @ControllerAdvice
 class ErrorHandlerControllerAdvice {
+
+    private static final Logger logger = LogManager.getLogger(ErrorHandlerControllerAdvice.class);
+
+
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
@@ -81,6 +87,7 @@ class ErrorHandlerControllerAdvice {
     @ResponseBody
     ValidationErrorResponse onRuntimeException(
             RuntimeException e) {
+        logger.error("Runtime Exception: ", e);
         ValidationErrorResponse error = new ValidationErrorResponse();
         error.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         error.getViolations().add(
