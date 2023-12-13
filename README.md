@@ -9,30 +9,35 @@ http://localhost:8080/swagger-ui.html
 Create docker database:
 To create a Docker database, ensure that Docker and docker-compose are installed on your machine. If you have these prerequisites, navigate to the Docker directory and execute the following command:
 ```shell script
+
+#cd into docker/
 docker compose up -d
+
+# or
+docker-compose up -d
+
 ```
 This command above will automate the image build process for the PostgreSQL database, create the necessary database, and provide additional resources for testing the endpoints.
 
 Demo user credentials:
 username: user
-password: "user"
+password: user
 
 Demo admin credentials:
 username: admin
-password: "user"
+password: user
 
 
 ___________________________
 
 Requires maven 3.8.1 and Java 11
 
-Start the server using
+Start the server using (ensure DB is running):
 ```shell script
 mvn spring-boot:run
 ```
 
 to test the endpoints, use the following command:
-(d)
 ```shell script
 mvn test
 ```
