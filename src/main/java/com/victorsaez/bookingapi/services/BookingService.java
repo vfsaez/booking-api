@@ -32,15 +32,13 @@ public class BookingService {
     private final PropertyRepository propertyRepository;
     private final PropertyService propertyService;
 
-    private final UserRepository userRepository;
     private final BookingMapper bookingMapper = BookingMapper.INSTANCE;
     private static final Logger logger = LogManager.getLogger(BookingService.class);
-    public BookingService(BookingRepository repository, ClientRepository clientRepository, PropertyRepository propertyRepository, PropertyService propertyService, UserRepository userRepository) {
+    public BookingService(BookingRepository repository, ClientRepository clientRepository, PropertyRepository propertyRepository, PropertyService propertyService) {
         this.repository = repository;
         this.clientRepository = clientRepository;
         this.propertyRepository = propertyRepository;
         this.propertyService = propertyService;
-        this.userRepository = userRepository;
     }
 
     public Page<BookingDTO> findAll(Pageable pageable, UserDetails currentUserDetails) {
@@ -72,6 +70,7 @@ public class BookingService {
         Booking booking = bookingMapper.bookingDTOtoBooking(dto);
         booking.setClient(client);
         booking.setProperty(property);
+        booking.setPrice(property.getPrice());
         booking.setOwner(customCurrentUserDetails.getUser());
         Booking createdBooking = repository.save(booking);
 
