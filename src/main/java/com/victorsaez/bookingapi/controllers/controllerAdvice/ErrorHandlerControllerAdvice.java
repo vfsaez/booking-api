@@ -3,6 +3,7 @@ package com.victorsaez.bookingapi.controllers.controllerAdvice;
 import com.victorsaez.bookingapi.exceptions.AccessDeniedException;
 import com.victorsaez.bookingapi.exceptions.NotFoundException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -47,7 +48,7 @@ class ErrorHandlerControllerAdvice {
     ValidationErrorResponse onAccessDeniedException(AccessDeniedException e) {
         ValidationErrorResponse error = new ValidationErrorResponse();
         error.setStatus(HttpStatus.FORBIDDEN.value());
-        error.getViolations().add(new Violation("accessDenied", e.getMessage()));
+        error.getViolations().add(new Violation("AccessDenied", e.getMessage()));
         return error;
     }
 
@@ -60,6 +61,18 @@ class ErrorHandlerControllerAdvice {
         error.setStatus(HttpStatus.NOT_FOUND.value());
         error.getViolations().add(
                 new Violation("NotFoundException", e.getMessage()));
+        return error;
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    ValidationErrorResponse onMessageNotReadableException(
+            RuntimeException e) {
+        ValidationErrorResponse error = new ValidationErrorResponse();
+        error.setStatus(HttpStatus.BAD_REQUEST.value());
+        error.getViolations().add(
+                new Violation("BadRequest", e.getMessage()));
         return error;
     }
 

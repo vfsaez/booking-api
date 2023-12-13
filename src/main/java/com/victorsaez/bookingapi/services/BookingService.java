@@ -1,6 +1,6 @@
 package com.victorsaez.bookingapi.services;
 
-import com.victorsaez.bookingapi.config.CustomSpringUser;
+import com.victorsaez.bookingapi.config.CustomUserDetails;
 import com.victorsaez.bookingapi.dto.BookingDTO;
 import com.victorsaez.bookingapi.entities.*;
 import com.victorsaez.bookingapi.enums.BlockStatus;
@@ -44,25 +44,25 @@ public class BookingService {
     }
 
     public Page<BookingDTO> findAll(Pageable pageable, UserDetails currentUserDetails) {
-        CustomSpringUser customSpringUser = (CustomSpringUser) currentUserDetails;
-        Page<Booking> bookings = customSpringUser.isAdmin() ?
+        CustomUserDetails customUserDetails = (CustomUserDetails) currentUserDetails;
+        Page<Booking> bookings = customUserDetails.isAdmin() ?
                 repository.findAll(pageable):
-                repository.findAllByOwnerId(customSpringUser.getId(), pageable);
+                repository.findAllByOwnerId(customUserDetails.getId(), pageable);
         return bookings.map(bookingMapper::bookingToBookingDTO);
     }
 
     public BookingDTO findById(Long id, UserDetails currentUserDetails) {
-        CustomSpringUser customCurrentUserDetails = (CustomSpringUser) currentUserDetails;
+        CustomUserDetails customCurrentUserDetails = (CustomUserDetails) currentUserDetails;
         return bookingMapper.bookingToBookingDTO(repository.findById(id).map(booking -> {
-            if (customCurrentUserDetails.isAdmin() || booking.getOwner().getId().equals(((CustomSpringUser) currentUserDetails).getId())) {
+            if (customCurrentUserDetails.isAdmin() || booking.getOwner().getId().equals(customCurrentUserDetails.getId())) {
                 return booking;
             } else {
-                throw new AccessDeniedException(id, ((CustomSpringUser) currentUserDetails).getId());
+                throw new AccessDeniedException(id, customCurrentUserDetails.getId());
             }}).orElseThrow(() -> new BookingNotFoundException(id)));
     }
 
     public BookingDTO insert(BookingDTO dto, UserDetails currentUserDetails) {
-        CustomSpringUser customCurrentUserDetails = (CustomSpringUser) currentUserDetails;
+        CustomUserDetails customCurrentUserDetails = (CustomUserDetails) currentUserDetails;
         Client client = clientRepository.findById(dto.getClientId())
                 .orElseThrow(() -> new ClientNotFoundException(dto.getClientId()));
         Property property = propertyRepository.findById(dto.getPropertyId())
@@ -75,13 +75,13 @@ public class BookingService {
         booking.setOwner(customCurrentUserDetails.getUser());
         Booking createdBooking = repository.save(booking);
 
-        logger.info("user {} Booking id {} created for property id {} and client id {}", ((CustomSpringUser) currentUserDetails).getId(), createdBooking.getId(), createdBooking.getProperty().getId(), createdBooking.getClient().getId());
+        logger.info("user {} Booking id {} created for property id {} and client id {}", customCurrentUserDetails.getId(), createdBooking.getId(), createdBooking.getProperty().getId(), createdBooking.getClient().getId());
         return bookingMapper.bookingToBookingDTO(createdBooking);
     }
 
 
     public BookingDTO update(BookingDTO dto, UserDetails currentUserDetails) throws AccessDeniedException, PropertyNotAvailableException, PropertyNotFoundException, BookingNotFoundException {
-        CustomSpringUser customCurrentUserDetails = (CustomSpringUser) currentUserDetails;
+        CustomUserDetails customCurrentUserDetails = (CustomUserDetails) currentUserDetails;
         Booking existingBooking = repository.findById(dto.getId())
                 .orElseThrow(() -> new BookingNotFoundException(dto.getId()));
 
@@ -102,13 +102,14 @@ public class BookingService {
         }
 
         Booking updatedBooking = repository.save(existingBooking);
-
-        logger.info("user {} Booking id {} created for property id {} and client id {}", customCurrentUserDetails.getId(), updatedBooking.getId(), updatedBooking.getProperty().getId(), updatedBooking.getClient().getId());
+        logger.info("user {} Booking id {} updated for property id {} and client id {}", customCurrentUserDetails.getId(), updatedBooking.getId(), updatedBooking.getProperty().getId(), updatedBooking.getClient().getId());
         return bookingMapper.bookingToBookingDTO(updatedBooking);
     }
 
     public void delete(Long id, UserDetails currentUserDetails) {
-        this.findById(id, currentUserDetails);
+        CustomUserDetails customCurrentUserDetails = (CustomUserDetails) currentUserDetails;
+        BookingDTO dto = this.findById(id, currentUserDetails);
+        logger.info("user {} Booking id {} deleted for property id {} and client id {}", customCurrentUserDetails.getId(), dto.getId(), dto.getPropertyId(), dto.getClientId());
         repository.deleteById(id);
     }
 }

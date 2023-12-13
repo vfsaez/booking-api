@@ -1,6 +1,7 @@
 package com.victorsaez.bookingapi.services;
 
-import com.victorsaez.bookingapi.config.CustomSpringUser;
+import com.victorsaez.bookingapi.config.CustomUserDetails;
+import com.victorsaez.bookingapi.dto.BookingDTO;
 import com.victorsaez.bookingapi.dto.UserDTO;
 import com.victorsaez.bookingapi.entities.User;
 import com.victorsaez.bookingapi.exceptions.AccessDeniedException;
@@ -9,6 +10,8 @@ import com.victorsaez.bookingapi.exceptions.UserNotFoundException;
 import com.victorsaez.bookingapi.mappers.UserMapper;
 import com.victorsaez.bookingapi.repositories.UserRepository;
 import com.victorsaez.bookingapi.services.UserService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -28,8 +31,11 @@ public class UserService {
         this.repository = repository;
     }
 
+    private static final Logger logger = LogManager.getLogger(UserService.class);
+
+
     public Page<UserDTO> findAll(Pageable pageable, UserDetails currentUserDetails) {
-        CustomSpringUser customCurrentUserDetails = (CustomSpringUser) currentUserDetails;
+        CustomUserDetails customCurrentUserDetails = (CustomUserDetails) currentUserDetails;
 
         if (!customCurrentUserDetails.isAdmin()) {
             throw new AccessDeniedException(customCurrentUserDetails.getId());
@@ -40,12 +46,12 @@ public class UserService {
     }
 
     public UserDTO findById(Long id, UserDetails currentUserDetails) throws UserNotFoundException {
-        CustomSpringUser customCurrentUserDetails = (CustomSpringUser) currentUserDetails;
+        CustomUserDetails customCurrentUserDetails = (CustomUserDetails) currentUserDetails;
         return userMapper.userToUserDTO(repository.findById(id).map(user -> {
-            if (customCurrentUserDetails.isAdmin() || user.getId().equals(((CustomSpringUser) currentUserDetails).getId())) {
+            if (customCurrentUserDetails.isAdmin() || user.getId().equals(((CustomUserDetails) currentUserDetails).getId())) {
                 return user;
             } else {
-                throw new AccessDeniedException(id, ((CustomSpringUser) currentUserDetails).getId());
+                throw new AccessDeniedException(id, ((CustomUserDetails) currentUserDetails).getId());
             }}).orElseThrow(() -> new UserNotFoundException(id)));
     }
 
@@ -59,7 +65,7 @@ public class UserService {
     }
 
     public UserDTO update(UserDTO dto, UserDetails currentUserDetails) {
-        CustomSpringUser customCurrentUserDetails = (CustomSpringUser) currentUserDetails;
+        CustomUserDetails customCurrentUserDetails = (CustomUserDetails) currentUserDetails;
         User existingUser = repository.findById(dto.getId())
                 .orElseThrow(() -> new UserNotFoundException(dto.getId()));
 
@@ -81,7 +87,9 @@ public class UserService {
     }
 
     public void delete(Long id, UserDetails currentUserDetails) {
-        this.findById(id, currentUserDetails);
+        CustomUserDetails customCurrentUserDetails = (CustomUserDetails) currentUserDetails;
+        UserDTO dto = this.findById(id, currentUserDetails);
+        logger.info("user {} User id {} deleted", customCurrentUserDetails.getId(), dto.getId());
         repository.deleteById(id);
     }
 }

@@ -1,6 +1,7 @@
 package com.victorsaez.bookingapi.services;
 
-import com.victorsaez.bookingapi.config.CustomSpringUser;
+import com.victorsaez.bookingapi.config.CustomUserDetails;
+import com.victorsaez.bookingapi.dto.BookingDTO;
 import com.victorsaez.bookingapi.dto.PropertyDTO;
 import com.victorsaez.bookingapi.entities.Block;
 import com.victorsaez.bookingapi.entities.Booking;
@@ -15,6 +16,8 @@ import com.victorsaez.bookingapi.mappers.PropertyMapper;
 import com.victorsaez.bookingapi.repositories.BlockRepository;
 import com.victorsaez.bookingapi.repositories.BookingRepository;
 import com.victorsaez.bookingapi.repositories.PropertyRepository;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -35,6 +38,9 @@ public class PropertyService {
 
     private final PropertyMapper propertyMapper = PropertyMapper.INSTANCE;
 
+    private static final Logger logger = LogManager.getLogger(PropertyService.class);
+
+
     public PropertyService(PropertyRepository repository, BookingRepository bookingRepository, BlockRepository blockRepository) {
         this.repository = repository;
         this.bookingRepository = bookingRepository;
@@ -42,7 +48,7 @@ public class PropertyService {
     }
 
     public Page<PropertyDTO> findAll(Pageable pageable, UserDetails currentUserDetails) {
-        CustomSpringUser customCurrentUserDetails = (CustomSpringUser) currentUserDetails;
+        CustomUserDetails customCurrentUserDetails = (CustomUserDetails) currentUserDetails;
         Page<Property> properties = customCurrentUserDetails.isAdmin() ?
                 repository.findAll(pageable) :
                 repository.findAllByOwnerId(customCurrentUserDetails.getId(), pageable);
@@ -50,20 +56,21 @@ public class PropertyService {
     }
 
     public PropertyDTO findById(Long id, UserDetails currentUserDetails) throws PropertyNotFoundException {
-        CustomSpringUser customCurrentUserDetails = (CustomSpringUser) currentUserDetails;
+        CustomUserDetails customCurrentUserDetails = (CustomUserDetails) currentUserDetails;
         return propertyMapper.propertyToPropertyDTO(repository.findById(id).map(property -> {
-            if (customCurrentUserDetails.isAdmin() || property.getOwner().getId().equals(((CustomSpringUser) currentUserDetails).getId())) {
+            if (customCurrentUserDetails.isAdmin() || property.getOwner().getId().equals(((CustomUserDetails) currentUserDetails).getId())) {
                 return property;
             } else {
-                throw new AccessDeniedException(id, ((CustomSpringUser) currentUserDetails).getId());
+                throw new AccessDeniedException(id, ((CustomUserDetails) currentUserDetails).getId());
             }}).orElseThrow(() -> new PropertyNotFoundException(id)));
     }
 
     public PropertyDTO insert(PropertyDTO dto, UserDetails currentUserDetails) {
-        CustomSpringUser customCurrentUserDetails = (CustomSpringUser) currentUserDetails;
+        CustomUserDetails customCurrentUserDetails = (CustomUserDetails) currentUserDetails;
         Property propertyToSave = propertyMapper.propertyDTOtoProperty(dto);
         propertyToSave.setOwner(customCurrentUserDetails.getUser());
         var propertySaved = repository.save(propertyToSave);
+        logger.info("user {} Property id {} created", customCurrentUserDetails.getId(), propertySaved.getId());
         return propertyMapper.propertyToPropertyDTO(propertySaved);
     }
 
@@ -84,7 +91,7 @@ public class PropertyService {
     }
 
     public PropertyDTO update(PropertyDTO dto, UserDetails currentUserDetails) {
-        CustomSpringUser customCurrentUserDetails = (CustomSpringUser) currentUserDetails;
+        CustomUserDetails customCurrentUserDetails = (CustomUserDetails) currentUserDetails;
         Property existingProperty = repository.findById(dto.getId())
                 .orElseThrow(() -> new PropertyNotFoundException(dto.getId()));
 
@@ -97,12 +104,14 @@ public class PropertyService {
         }
 
         Property updatedProperty = repository.save(existingProperty);
-
+        logger.info("user {} Property id {} updated", customCurrentUserDetails.getId(), updatedProperty.getId());
         return propertyMapper.propertyToPropertyDTO(updatedProperty);
     }
 
     public void delete(Long id, UserDetails currentUserDetails) {
-        this.findById(id, currentUserDetails);
+        CustomUserDetails customCurrentUserDetails = (CustomUserDetails) currentUserDetails;
+        PropertyDTO dto = this.findById(id, currentUserDetails);
+        logger.info("user {} Property id {} deleted", customCurrentUserDetails.getId(), dto.getId());
         repository.deleteById(id);
     }
 }

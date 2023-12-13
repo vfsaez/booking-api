@@ -1,6 +1,6 @@
 package com.victorsaez.bookingapi.services;
 
-import com.victorsaez.bookingapi.config.CustomSpringUser;
+import com.victorsaez.bookingapi.config.CustomUserDetails;
 import com.victorsaez.bookingapi.dto.ClientDTO;
 import com.victorsaez.bookingapi.entities.Client;
 import com.victorsaez.bookingapi.repositories.ClientRepository;
@@ -44,7 +44,7 @@ public class ClientServiceTest {
 
         when(clientRepository.findAll(any(Pageable.class))).thenReturn(clientPage);
 
-        CustomSpringUser mockUserDetails = Mockito.mock(CustomSpringUser.class);
+        CustomUserDetails mockUserDetails = Mockito.mock(CustomUserDetails.class);
         when(mockUserDetails.isAdmin()).thenReturn(true);
         Page<ClientDTO> clients = clientService.findAll(Pageable.unpaged(), mockUserDetails);
 

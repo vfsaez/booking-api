@@ -1,6 +1,6 @@
 package com.victorsaez.bookingapi.services;
 
-import com.victorsaez.bookingapi.config.CustomSpringUser;
+import com.victorsaez.bookingapi.config.CustomUserDetails;
 import com.victorsaez.bookingapi.dto.PropertyDTO;
 import com.victorsaez.bookingapi.entities.Booking;
 import com.victorsaez.bookingapi.entities.Property;
@@ -87,7 +87,7 @@ public class PropertyServiceTest {
         Property property = new Property();
         property.setId(1L);
         // set other fields as necessary
-        CustomSpringUser mockUserDetails = Mockito.mock(CustomSpringUser.class);
+        CustomUserDetails mockUserDetails = Mockito.mock(CustomUserDetails.class);
         Mockito.when(mockUserDetails.getUsername()).thenReturn("testUser");
         Mockito.when(mockUserDetails.getId()).thenReturn(1L);
         Mockito.when(mockUserDetails.isAdmin()).thenReturn(true);
@@ -107,7 +107,7 @@ public class PropertyServiceTest {
         Property property = new Property();
         property.setId(1L);
         // set other fields as necessary
-        CustomSpringUser mockUserDetails = Mockito.mock(CustomSpringUser.class);
+        CustomUserDetails mockUserDetails = Mockito.mock(CustomUserDetails.class);
         Mockito.when(mockUserDetails.getUsername()).thenReturn("testUser");
         Mockito.when(mockUserDetails.getId()).thenReturn(1L);
         Mockito.when(mockUserDetails.isAdmin()).thenReturn(false);

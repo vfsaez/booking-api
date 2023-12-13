@@ -1,6 +1,6 @@
 package com.victorsaez.bookingapi.config;
 
-import com.victorsaez.bookingapi.config.CustomSpringUser;
+import com.victorsaez.bookingapi.config.CustomUserDetails;
 import com.victorsaez.bookingapi.entities.User;
 import com.victorsaez.bookingapi.repositories.UserRepository;
 import org.springframework.security.core.GrantedAuthority;
@@ -35,10 +35,10 @@ public class CustomUserDetailsService implements UserDetailsService {
         List<GrantedAuthority> authorities = Arrays.stream(user.getRoles().split(","))
                     .map(role -> new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()))
                     .collect(Collectors.toList());
-        CustomSpringUser customSpringUser = new CustomSpringUser(user.getUsername(), user.getPassword(), authorities);
-        customSpringUser.setId(user.getId());
-        customSpringUser.setUser(user);
-        return customSpringUser;
+        CustomUserDetails customUserDetails = new CustomUserDetails(user.getUsername(), user.getPassword(), authorities);
+        customUserDetails.setId(user.getId());
+        customUserDetails.setUser(user);
+        return customUserDetails;
     }
 
 
