@@ -19,13 +19,16 @@ docker-compose up -d
 ```
 This command above will automate the image build process for the PostgreSQL database, create the necessary database, and provide additional resources for testing the endpoints.
 
-Demo user credentials:
+PREPOPULATED USERS ->
+```shell script
+#DEMO USER
 username: user
 password: user
 
-Demo admin credentials:
+#DEMO ADMIN
 username: admin
 password: user
+```
 
 
 ___________________________
