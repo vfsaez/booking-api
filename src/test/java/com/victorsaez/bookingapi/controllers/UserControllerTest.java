@@ -1,6 +1,10 @@
 package com.victorsaez.bookingapi.controllers;
 
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.victorsaez.bookingapi.dto.UserDTO;
 import com.victorsaez.bookingapi.services.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -88,12 +92,18 @@ public class UserControllerTest {
         newUser.setId(1L);
         newUser.setUsername("testUser");
         newUser.setName("Test User");
-        newUser.setPassword("$2a$10$1fTsKGQgaY3mLL7iU5WtxuQXI2ZAIVPLaAChmP0DGYZT8HZWB4GAm");
+        newUser.setPassword("testPassword");
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        objectMapper.disable(MapperFeature.USE_ANNOTATIONS);
+        objectMapper.setFilterProvider(new SimpleFilterProvider().setFailOnUnknownId(false));
+
 
         mockMvc.perform(post("/users")
-                        .with(user("testUser").roles("USER"))  // Mock a user
+                        .with(user("testAdmin").roles("ADMIN")) // Mock a user
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(newUser)))
+                        .content(objectMapper.writeValueAsString(newUser)))
                 .andExpect(status().isCreated())
                 .andExpect(content().json("{\"id\":1}"));
     }
@@ -104,12 +114,19 @@ public class UserControllerTest {
         updatedUser.setId(1L);
         updatedUser.setUsername("testUser");
         updatedUser.setName("Test User");
-        updatedUser.setPassword("$2a$10$1fTsKGQgaY3mLL7iU5WtxuQXI2ZAIVPLaAChmP0DGYZT8HZWB4GAm");
+        updatedUser.setPassword("testPassword");
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        objectMapper.disable(MapperFeature.USE_ANNOTATIONS);
+        objectMapper.setFilterProvider(new SimpleFilterProvider().setFailOnUnknownId(false));
+
+
 
         mockMvc.perform(put("/users/{id}", 1L)
-                        .with(user("testUser").roles("USER"))  // Mock a user
+                        .with(user("testAdmin").roles("ADMIN"))  // Mock a user
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(updatedUser)))
+                        .content(objectMapper.writeValueAsString(updatedUser)))
                 .andExpect(status().isOk())
                 .andExpect(content().json("{\"id\":1}"));
     }
