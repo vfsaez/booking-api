@@ -7,6 +7,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public class PropertyNotFoundException extends NotFoundException {
 
     public PropertyNotFoundException(Long id) {
-        super(id);
+        super("Property", id);
     }
 }

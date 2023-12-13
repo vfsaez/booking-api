@@ -9,4 +9,8 @@ public class NotFoundException extends RuntimeException {
     public NotFoundException(Long id) {
         super("Resource not found with Id: " + id);
     }
+
+    public NotFoundException(String Resource, Long id) {
+        super(String.format("%s not found with Id: %s", Resource, id));
+    }
 }

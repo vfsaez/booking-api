@@ -7,6 +7,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public class BlockNotFoundException extends NotFoundException{
 
     public BlockNotFoundException(Long id) {
-        super(id);
+        super("Block", id);
     }
 }

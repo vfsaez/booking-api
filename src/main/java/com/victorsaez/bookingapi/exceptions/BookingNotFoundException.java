@@ -7,6 +7,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public class BookingNotFoundException extends NotFoundException{
 
     public BookingNotFoundException(Long id) {
-        super(id);
+        super("Booking", id);
     }
 }
