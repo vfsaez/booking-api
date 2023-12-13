@@ -32,6 +32,7 @@ mvn spring-boot:run
 ```
 
 to test the endpoints, use the following command:
+(d)
 ```shell script
 mvn test
 ```
