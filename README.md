@@ -60,6 +60,6 @@ mvn test
 Notes
 
 - The API implements an authentication and authorization scheme using JWT
-- Endpoints require User to be logged in to access them, except the login endpoint
+- Endpoints require User to be logged in to access them, except the login and signup endpoints
 - Public registration endpoint is provided -> /v1/authentication/signup
-- Only admins can create users
+- Only admins can create users through POST /users/
