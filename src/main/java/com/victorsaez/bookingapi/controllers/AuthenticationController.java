@@ -1,11 +1,14 @@
 package com.victorsaez.bookingapi.controllers;
 
+import com.victorsaez.bookingapi.config.CustomUserDetails;
 import com.victorsaez.bookingapi.config.JwtUtil;
 import com.victorsaez.bookingapi.dto.requests.AuthenticationRequest;
 import com.victorsaez.bookingapi.dto.responses.AuthenticationResponse;
 
+import com.victorsaez.bookingapi.mappers.UserMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,6 +25,9 @@ public class AuthenticationController {
 
     private AuthenticationManager authenticationManager;
     private UserDetailsService userDetailsService;
+
+    private final UserMapper userMapper = UserMapper.INSTANCE;
+
     private JwtUtil jwtUtil;
 
     public AuthenticationController(AuthenticationManager authenticationManager, UserDetailsService userDetailsService, JwtUtil jwtUtil) {
@@ -49,6 +55,6 @@ public class AuthenticationController {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + jwt);
 
-        return ResponseEntity.ok().headers(headers).body(new AuthenticationResponse(jwt));
+        return ResponseEntity.ok().headers(headers).body(new AuthenticationResponse(jwt, userMapper.userToUserDTO(((CustomUserDetails) userDetails).getUser())));
     }
 }

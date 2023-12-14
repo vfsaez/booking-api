@@ -16,6 +16,8 @@ services:
     depends_on:
       - booking_pgsql
     restart: always
+    env_file:
+      - docker/config/app.env
     ports:
       - "8080:8080"
     networks:
