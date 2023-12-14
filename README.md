@@ -6,6 +6,7 @@ The API is documented using Swagger and the documentation is available at the /s
 http://localhost:8080/swagger-ui.html
 
 
+___________________________
 
 ### Running with Docker:
 Create docker database & run the app:
@@ -20,7 +21,9 @@ docker-compose up -d
 This command above will automate the image build process for the PostgreSQL database, create the necessary database, and provide additional resources for testing the endpoints.
 It will also start the docker container for the app
 
-PREPOPULATED USERS ->
+
+
+### PREPOPULATED USERS
 ```shell script
 #DEMO USER
 username: user
@@ -40,7 +43,7 @@ Requires maven 3.8.1 and Java 11
 
 Start the server using (ensure DB is running):
 ```shell script
-#start the your local databasedatabase
+#start the your local database
 # or use the dockerized database using
 docker-compose up -d booking_pgsql
 #or
