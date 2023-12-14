@@ -23,7 +23,7 @@ import java.util.List;
 
 @RestController
 @Tag(name = "Blocks")
-@RequestMapping(value = "/blocks", produces = "application/json")
+@RequestMapping(value = "/v1/blocks", produces = "application/json")
 public class BlockController {
 
     private final BlockService service;

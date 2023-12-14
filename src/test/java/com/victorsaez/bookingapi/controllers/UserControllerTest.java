@@ -63,14 +63,14 @@ public class UserControllerTest {
 
     @Test
     public void shouldReturnUnauthorizedWhenUserIsNotAuthenticated() throws Exception {
-        mockMvc.perform(get("/blocks")
+        mockMvc.perform(get("/v1/blocks")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     public void shouldReturnAllUsers() throws Exception {
-        mockMvc.perform(get("/users")
+        mockMvc.perform(get("/v1/users")
                         .with(user("testUser").roles("USER"))  // Mock a user
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -79,7 +79,7 @@ public class UserControllerTest {
 
     @Test
     public void shouldReturnUserById() throws Exception {
-        mockMvc.perform(get("/users/{id}", 1L)
+        mockMvc.perform(get("/v1/users/{id}", 1L)
                         .with(user("testUser").roles("USER"))  // Mock a user
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -100,7 +100,7 @@ public class UserControllerTest {
         objectMapper.setFilterProvider(new SimpleFilterProvider().setFailOnUnknownId(false));
 
 
-        mockMvc.perform(post("/users")
+        mockMvc.perform(post("/v1/users")
                         .with(user("testAdmin").roles("ADMIN")) // Mock a user
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(newUser)))
@@ -123,7 +123,7 @@ public class UserControllerTest {
 
 
 
-        mockMvc.perform(put("/users/{id}", 1L)
+        mockMvc.perform(put("/v1/users/{id}", 1L)
                         .with(user("testAdmin").roles("ADMIN"))  // Mock a user
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updatedUser)))
@@ -133,7 +133,7 @@ public class UserControllerTest {
 
     @Test
     public void shouldDeleteUser() throws Exception {
-        mockMvc.perform(delete("/users/{id}", 1L)
+        mockMvc.perform(delete("/v1/users/{id}", 1L)
                         .with(user("testUser").roles("USER"))  // Mock a user
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());

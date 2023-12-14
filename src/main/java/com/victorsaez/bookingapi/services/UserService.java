@@ -3,10 +3,12 @@ package com.victorsaez.bookingapi.services;
 import com.victorsaez.bookingapi.config.CustomUserDetails;
 import com.victorsaez.bookingapi.dto.BookingDTO;
 import com.victorsaez.bookingapi.dto.UserDTO;
+import com.victorsaez.bookingapi.dto.requests.SignupRequest;
 import com.victorsaez.bookingapi.entities.User;
 import com.victorsaez.bookingapi.exceptions.AccessDeniedException;
 import com.victorsaez.bookingapi.exceptions.ClientNotFoundException;
 import com.victorsaez.bookingapi.exceptions.UserNotFoundException;
+import com.victorsaez.bookingapi.exceptions.UsernameNotAvailableException;
 import com.victorsaez.bookingapi.mappers.UserMapper;
 import com.victorsaez.bookingapi.repositories.UserRepository;
 import com.victorsaez.bookingapi.services.UserService;
@@ -61,12 +63,31 @@ public class UserService {
         String hashedPassword = passwordEncoder.encode(dto.getPassword());
         dto.setPassword(hashedPassword);
 
-        if (!customCurrentUserDetails.isAdmin()){
+        if (repository.findByUsername(dto.getUsername()).isPresent()) {
+            throw new UsernameNotAvailableException();
+        }
+
+        if (customCurrentUserDetails != null && !customCurrentUserDetails.isAdmin()){
             throw new AccessDeniedException(customCurrentUserDetails.getId());
         }
 
         var userSaved = repository.save(userMapper.userDTOtoUser(dto));
+
         return userMapper.userToUserDTO(userSaved);
+    }
+
+    public UserDTO register(SignupRequest signupRequest) {
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String hashedPassword = passwordEncoder.encode(signupRequest.getPassword());
+        signupRequest.setPassword(hashedPassword);
+
+        UserDTO dto = new UserDTO();
+        dto.setUsername(signupRequest.getUsername());
+        dto.setPassword(signupRequest.getPassword());
+        dto.setName(signupRequest.getName());
+        dto.setRoles("USER");
+
+        return this.insert(dto, null);
     }
 
     public UserDTO update(UserDTO dto, UserDetails currentUserDetails) {

@@ -61,8 +61,5 @@ Notes
 
 - The API implements an authentication and authorization scheme using JWT
 - Endpoints require User to be logged in to access them, except the login endpoint
-- No public registration endpoint is provided -> Only admins can create users
-
-
- 
-
+- Public registration endpoint is provided -> /v1/authentication/signup
+- Only admins can create users

@@ -25,7 +25,7 @@ import java.util.List;
 
 @RestController
 @Tag(name = "Clients")
-@RequestMapping(value = "/clients", produces = "application/json")
+@RequestMapping(value = "/v1/clients", produces = "application/json")
 public class ClientController {
 
     private final ClientService service;

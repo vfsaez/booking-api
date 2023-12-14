@@ -24,7 +24,7 @@ import java.util.List;
 
 @RestController
 @Tag(name = "Properties")
-@RequestMapping(value = "/properties",  produces = "application/json")
+@RequestMapping(value = "/v1/properties",  produces = "application/json")
 public class PropertyController {
 
     private final PropertyService service;

@@ -25,7 +25,7 @@ import java.util.List;
 
 @RestController
 @Tag(name = "Bookings")
-@RequestMapping(value = "/bookings", produces = "application/json")
+@RequestMapping(value = "/v1/bookings", produces = "application/json")
 public class BookingController {
 
     private final BookingService service;

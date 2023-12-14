@@ -2,6 +2,7 @@ package com.victorsaez.bookingapi.controllers.controllerAdvice;
 
 import com.victorsaez.bookingapi.exceptions.AccessDeniedException;
 import com.victorsaez.bookingapi.exceptions.NotFoundException;
+import com.victorsaez.bookingapi.exceptions.UsernameNotAvailableException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
@@ -92,6 +93,19 @@ class ErrorHandlerControllerAdvice {
         error.setStatus(HttpStatus.UNAUTHORIZED.value());
         error.getViolations().add(
                 new Violation("BadCredentialsException", e.getMessage()));
+        return error;
+    }
+
+    @ExceptionHandler(UsernameNotAvailableException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    ValidationErrorResponse onUsernameNotAvailableException(
+            RuntimeException e) {
+        logger.error("Runtime Exception: ", e);
+        ValidationErrorResponse error = new ValidationErrorResponse();
+        error.setStatus(HttpStatus.BAD_REQUEST.value());
+        error.getViolations().add(
+                new Violation("UsernameNotAvailableError", e.getMessage()));
         return error;
     }
 

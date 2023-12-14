@@ -56,14 +56,14 @@ public class BookingControllerTest {
 
     @Test
     public void shouldReturnUnauthorizedWhenUserIsNotAuthenticated() throws Exception {
-        mockMvc.perform(get("/bookings")
+        mockMvc.perform(get("/v1/bookings")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     public void shouldReturnAllBookings() throws Exception {
-        mockMvc.perform(get("/bookings")
+        mockMvc.perform(get("/v1/bookings")
                         .with(user("testUser").roles("USER"))  // Mock a user
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -72,7 +72,7 @@ public class BookingControllerTest {
 
     @Test
     public void shouldReturnBookingById() throws Exception {
-        mockMvc.perform(get("/bookings/{id}", 1L)
+        mockMvc.perform(get("/v1/bookings/{id}", 1L)
                         .with(user("testUser").roles("USER"))  // Mock a user
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -84,7 +84,7 @@ public class BookingControllerTest {
         BookingDTO newBooking = new BookingDTO();
         newBooking.setId(1L);
 
-        mockMvc.perform(post("/bookings")
+        mockMvc.perform(post("/v1/bookings")
                         .with(user("testUser").roles("USER"))  // Mock a user
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(newBooking)))
@@ -97,7 +97,7 @@ public class BookingControllerTest {
         BookingDTO updatedBooking = new BookingDTO();
         updatedBooking.setId(1L);
 
-        mockMvc.perform(put("/bookings/{id}", 1L)
+        mockMvc.perform(put("/v1/bookings/{id}", 1L)
                         .with(user("testUser").roles("USER"))  // Mock a user
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(updatedBooking)))
@@ -107,7 +107,7 @@ public class BookingControllerTest {
 
     @Test
     public void shouldDeleteBooking() throws Exception {
-        mockMvc.perform(delete("/bookings/{id}", 1L)
+        mockMvc.perform(delete("/v1/bookings/{id}", 1L)
                         .with(user("testUser").roles("USER"))  // Mock a user
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());

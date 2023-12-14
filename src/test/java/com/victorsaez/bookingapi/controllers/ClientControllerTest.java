@@ -57,14 +57,14 @@ public class ClientControllerTest {
 
     @Test
     public void shouldReturnUnauthorizedWhenUserIsNotAuthenticated() throws Exception {
-        mockMvc.perform(get("/clients")
+        mockMvc.perform(get("/v1/clients")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     public void shouldReturnAllClients() throws Exception {
-        mockMvc.perform(get("/clients")
+        mockMvc.perform(get("/v1/clients")
                         .with(user("testUser").roles("USER"))  // Mock a user
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -73,7 +73,7 @@ public class ClientControllerTest {
 
     @Test
     public void shouldReturnClientById() throws Exception {
-        mockMvc.perform(get("/clients/{id}", 1L)
+        mockMvc.perform(get("/v1/clients/{id}", 1L)
                         .with(user("testUser").roles("USER"))  // Mock a user
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -85,7 +85,7 @@ public class ClientControllerTest {
         ClientDTO newClient = new ClientDTO();
         newClient.setId(1L);
 
-        mockMvc.perform(post("/clients")
+        mockMvc.perform(post("/v1/clients")
                         .with(user("testUser").roles("USER"))  // Mock a user
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(newClient)))
@@ -98,7 +98,7 @@ public class ClientControllerTest {
         ClientDTO updatedClient = new ClientDTO();
         updatedClient.setId(1L);
 
-        mockMvc.perform(put("/clients/{id}", 1L)
+        mockMvc.perform(put("/v1/clients/{id}", 1L)
                         .with(user("testUser").roles("USER"))  // Mock a user
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(updatedClient)))
@@ -108,7 +108,7 @@ public class ClientControllerTest {
 
     @Test
     public void shouldDeleteClient() throws Exception {
-        mockMvc.perform(delete("/clients/{id}", 1L)
+        mockMvc.perform(delete("/v1/clients/{id}", 1L)
                         .with(user("testUser").roles("USER"))  // Mock a user
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());

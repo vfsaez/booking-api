@@ -59,14 +59,14 @@ public class PropertyControllerTest {
 
     @Test
     public void shouldReturnUnauthorizedWhenUserIsNotAuthenticated() throws Exception {
-        mockMvc.perform(get("/properties")
+        mockMvc.perform(get("/v1/properties")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     public void shouldReturnAllProperties() throws Exception {
-        mockMvc.perform(get("/properties")
+        mockMvc.perform(get("/v1/properties")
                         .with(user("testUser").roles("USER"))  // Mock a user
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -83,7 +83,7 @@ public class PropertyControllerTest {
 
         when(propertyService.insert(any(PropertyDTO.class), any(UserDetails.class))).thenReturn(newProperty);
 
-        mockMvc.perform(post("/properties")
+        mockMvc.perform(post("/v1/properties")
                         .with(user("testUser").roles("USER"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(newProperty)))
@@ -100,7 +100,7 @@ public class PropertyControllerTest {
 
         when(propertyService.update(any(PropertyDTO.class), any(UserDetails.class))).thenReturn(updatedProperty);
 
-        mockMvc.perform(put("/properties/{id}", 1L)
+        mockMvc.perform(put("/v1/properties/{id}", 1L)
                         .with(user("testUser").roles("USER"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(updatedProperty)))
@@ -112,7 +112,7 @@ public class PropertyControllerTest {
     public void shouldDeleteProperty() throws Exception {
         Mockito.doNothing().when(propertyService).delete(anyLong(), any(UserDetails.class));
 
-        mockMvc.perform(delete("/properties/{id}", 1L)
+        mockMvc.perform(delete("/v1/properties/{id}", 1L)
                         .with(user("testUser").roles("USER")))
                 .andExpect(status().isNoContent());
     }

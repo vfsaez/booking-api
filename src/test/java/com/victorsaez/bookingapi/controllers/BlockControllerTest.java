@@ -57,14 +57,14 @@ public class BlockControllerTest {
 
     @Test
     public void shouldReturnUnauthorizedWhenUserIsNotAuthenticated() throws Exception {
-        mockMvc.perform(get("/blocks")
+        mockMvc.perform(get("/v1/blocks")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     public void shouldReturnAllBlocks() throws Exception {
-        mockMvc.perform(get("/blocks")
+        mockMvc.perform(get("/v1/blocks")
                         .with(user("testUser").roles("USER"))  // Mock a user
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -73,7 +73,7 @@ public class BlockControllerTest {
 
     @Test
     public void shouldReturnBlockById() throws Exception {
-        mockMvc.perform(get("/blocks/{id}", 1L)
+        mockMvc.perform(get("/v1/blocks/{id}", 1L)
                         .with(user("testUser").roles("USER"))  // Mock a user
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -85,7 +85,7 @@ public class BlockControllerTest {
         BlockDTO newBlock = new BlockDTO();
         newBlock.setId(1L);
 
-        mockMvc.perform(post("/blocks")
+        mockMvc.perform(post("/v1/blocks")
                         .with(user("testUser").roles("USER"))  // Mock a user
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(newBlock)))
@@ -98,7 +98,7 @@ public class BlockControllerTest {
         BlockDTO updatedBlock = new BlockDTO();
         updatedBlock.setId(1L);
 
-        mockMvc.perform(put("/blocks/{id}", 1L)
+        mockMvc.perform(put("/v1/blocks/{id}", 1L)
                         .with(user("testUser").roles("USER"))  // Mock a user
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(updatedBlock)))
@@ -108,7 +108,7 @@ public class BlockControllerTest {
 
     @Test
     public void shouldDeleteBlock() throws Exception {
-        mockMvc.perform(delete("/blocks/{id}", 1L)
+        mockMvc.perform(delete("/v1/blocks/{id}", 1L)
                         .with(user("testUser").roles("USER"))  // Mock a user
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
