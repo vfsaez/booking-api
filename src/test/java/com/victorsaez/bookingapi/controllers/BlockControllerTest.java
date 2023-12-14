@@ -2,6 +2,9 @@ package com.victorsaez.bookingapi.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.victorsaez.bookingapi.dto.BlockDTO;
+import com.victorsaez.bookingapi.dto.BookingDTO;
+import com.victorsaez.bookingapi.enums.BlockStatus;
+import com.victorsaez.bookingapi.enums.BookingStatus;
 import com.victorsaez.bookingapi.services.BlockService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,6 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 
@@ -84,6 +88,12 @@ public class BlockControllerTest {
     public void shouldCreateNewBlock() throws Exception {
         BlockDTO newBlock = new BlockDTO();
         newBlock.setId(1L);
+        newBlock.setStatus(BlockStatus.BLOCKED);
+        Calendar cal = Calendar.getInstance();
+        newBlock.setStartDate(cal.getTime());
+        cal.add(Calendar.DATE, 1);
+        newBlock.setEndDate(cal.getTime());
+        newBlock.setPropertyId(1L);
 
         mockMvc.perform(post("/v1/blocks")
                         .with(user("testUser").roles("USER"))  // Mock a user
@@ -97,6 +107,12 @@ public class BlockControllerTest {
     public void shouldUpdateBlock() throws Exception {
         BlockDTO updatedBlock = new BlockDTO();
         updatedBlock.setId(1L);
+        updatedBlock.setStatus(BlockStatus.BLOCKED);
+        Calendar cal = Calendar.getInstance();
+        updatedBlock.setStartDate(cal.getTime());
+        cal.add(Calendar.DATE, 1);
+        updatedBlock.setEndDate(cal.getTime());
+        updatedBlock.setPropertyId(1L);
 
         mockMvc.perform(put("/v1/blocks/{id}", 1L)
                         .with(user("testUser").roles("USER"))  // Mock a user

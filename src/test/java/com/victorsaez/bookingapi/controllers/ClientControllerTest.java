@@ -1,7 +1,9 @@
 package com.victorsaez.bookingapi.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.victorsaez.bookingapi.dto.BookingDTO;
 import com.victorsaez.bookingapi.dto.ClientDTO;
+import com.victorsaez.bookingapi.enums.BookingStatus;
 import com.victorsaez.bookingapi.services.ClientService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,6 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 
@@ -84,6 +87,7 @@ public class ClientControllerTest {
     public void shouldCreateNewClient() throws Exception {
         ClientDTO newClient = new ClientDTO();
         newClient.setId(1L);
+        newClient.setName("testClient");
 
         mockMvc.perform(post("/v1/clients")
                         .with(user("testUser").roles("USER"))  // Mock a user
@@ -97,6 +101,7 @@ public class ClientControllerTest {
     public void shouldUpdateClient() throws Exception {
         ClientDTO updatedClient = new ClientDTO();
         updatedClient.setId(1L);
+        updatedClient.setName("testClient");
 
         mockMvc.perform(put("/v1/clients/{id}", 1L)
                         .with(user("testUser").roles("USER"))  // Mock a user

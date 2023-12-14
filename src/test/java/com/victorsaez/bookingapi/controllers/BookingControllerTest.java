@@ -2,6 +2,7 @@ package com.victorsaez.bookingapi.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.victorsaez.bookingapi.dto.BookingDTO;
+import com.victorsaez.bookingapi.enums.BookingStatus;
 import com.victorsaez.bookingapi.services.BookingService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 
@@ -83,6 +85,13 @@ public class BookingControllerTest {
     public void shouldCreateNewBooking() throws Exception {
         BookingDTO newBooking = new BookingDTO();
         newBooking.setId(1L);
+        newBooking.setStatus(BookingStatus.BOOKED);
+        Calendar cal = Calendar.getInstance();
+        newBooking.setStartDate(cal.getTime());
+        cal.add(Calendar.DATE, 1);
+        newBooking.setEndDate(cal.getTime());
+        newBooking.setPropertyId(1L);
+        newBooking.setClientId(1L);
 
         mockMvc.perform(post("/v1/bookings")
                         .with(user("testUser").roles("USER"))  // Mock a user
@@ -96,6 +105,13 @@ public class BookingControllerTest {
     public void shouldUpdateBooking() throws Exception {
         BookingDTO updatedBooking = new BookingDTO();
         updatedBooking.setId(1L);
+        updatedBooking.setStatus(BookingStatus.BOOKED);
+        Calendar cal = Calendar.getInstance();
+        updatedBooking.setStartDate(cal.getTime());
+        cal.add(Calendar.DATE, 1);
+        updatedBooking.setEndDate(cal.getTime());
+        updatedBooking.setPropertyId(1L);
+        updatedBooking.setClientId(1L);
 
         mockMvc.perform(put("/v1/bookings/{id}", 1L)
                         .with(user("testUser").roles("USER"))  // Mock a user
