@@ -103,7 +103,6 @@ ALTER SEQUENCE public.tb_booking_id_seq OWNED BY public.tb_booking.id;
 CREATE TABLE public.tb_client (
                                   id bigint NOT NULL,
                                   name character varying(255) NOT NULL,
-                                  total_rentals integer NOT NULL,
                                   owner_id bigint
 );
 
@@ -272,8 +271,8 @@ COPY public.tb_booking (id, end_date, price, start_date, status, client_id, prop
 -- Data for Name: tb_client; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.tb_client (id, name, total_rentals, owner_id) FROM stdin;
-1	Client 1	0	1
+COPY public.tb_client (id, name, owner_id) FROM stdin;
+1	Client 1	1
 \.
 
 
