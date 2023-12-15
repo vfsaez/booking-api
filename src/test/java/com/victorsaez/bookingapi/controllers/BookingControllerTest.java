@@ -24,6 +24,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -41,18 +42,18 @@ public class BookingControllerTest {
 
     @BeforeEach
     public void setup() {
-        BookingDTO bookingDTO = new BookingDTO();
-        bookingDTO.setId(1L);
+        BookingDTO bookingDto = new BookingDTO();
+        bookingDto.setId(1L);
         UserDetails mockUserDetails = Mockito.mock(UserDetails.class);
-        Mockito.when(mockUserDetails.getUsername()).thenReturn("testUser");
+        when(mockUserDetails.getUsername()).thenReturn("testUser");
 
-        List<BookingDTO> bookingList = Collections.singletonList(bookingDTO);
+        List<BookingDTO> bookingList = Collections.singletonList(bookingDto);
         Page<BookingDTO> bookingPage = new PageImpl<>(bookingList);
 
-        Mockito.when(bookingService.findAll(any(Pageable.class), any(UserDetails.class))).thenReturn(bookingPage);
-        Mockito.when(bookingService.findById(anyLong(), any(UserDetails.class))).thenReturn(bookingDTO);
-        Mockito.when(bookingService.insert(any(BookingDTO.class), any(UserDetails.class))).thenReturn(bookingDTO);
-        Mockito.when(bookingService.update(any(BookingDTO.class), any(UserDetails.class))).thenReturn(bookingDTO);
+        when(bookingService.findAll(any(Pageable.class), any(UserDetails.class))).thenReturn(bookingPage);
+        when(bookingService.findById(anyLong(), any(UserDetails.class))).thenReturn(bookingDto);
+        when(bookingService.insert(any(BookingDTO.class), any(UserDetails.class))).thenReturn(bookingDto);
+        when(bookingService.update(any(BookingDTO.class), any(UserDetails.class))).thenReturn(bookingDto);
         Mockito.doNothing().when(bookingService).delete(anyLong(), any(UserDetails.class));
     }
 
@@ -61,6 +62,22 @@ public class BookingControllerTest {
         mockMvc.perform(get("/v1/bookings")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void shouldPatchBooking() throws Exception {
+        BookingDTO patchedBooking = new BookingDTO();
+        patchedBooking.setId(1L);
+        patchedBooking.setStatus(BookingStatus.BOOKED);
+
+        when(bookingService.patch(anyLong(), any(BookingDTO.class), any(UserDetails.class))).thenReturn(patchedBooking);
+
+        mockMvc.perform(patch("/v1/bookings/{id}", 1L)
+                        .with(user("testUser").roles("USER"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(patchedBooking)))
+                .andExpect(status().isOk())
+                .andExpect(content().json("{\"id\":1,\"status\":\"BOOKED\"}"));
     }
 
     @Test

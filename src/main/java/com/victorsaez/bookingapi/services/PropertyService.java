@@ -65,9 +65,9 @@ public class PropertyService {
             }}).orElseThrow(() -> new PropertyNotFoundException(id)));
     }
 
-    public PropertyDTO insert(PropertyDTO dto, UserDetails currentUserDetails) {
+    public PropertyDTO insert(PropertyDTO propertyDto, UserDetails currentUserDetails) {
         CustomUserDetails customCurrentUserDetails = (CustomUserDetails) currentUserDetails;
-        Property propertyToSave = propertyMapper.propertyDTOtoProperty(dto);
+        Property propertyToSave = propertyMapper.propertyDTOtoProperty(propertyDto);
         propertyToSave.setOwner(customCurrentUserDetails.getUser());
         var propertySaved = repository.save(propertyToSave);
         logger.info("user {} Property id {} created", customCurrentUserDetails.getId(), propertySaved.getId());
@@ -90,17 +90,17 @@ public class PropertyService {
         }
     }
 
-    public PropertyDTO update(PropertyDTO dto, UserDetails currentUserDetails) {
+    public PropertyDTO update(PropertyDTO propertyDto, UserDetails currentUserDetails) {
         CustomUserDetails customCurrentUserDetails = (CustomUserDetails) currentUserDetails;
-        Property existingProperty = repository.findById(dto.getId())
-                .orElseThrow(() -> new PropertyNotFoundException(dto.getId()));
+        Property existingProperty = repository.findById(propertyDto.getId())
+                .orElseThrow(() -> new PropertyNotFoundException(propertyDto.getId()));
 
-        existingProperty.setName(dto.getName());
-        existingProperty.setPrice(dto.getPrice());
+        existingProperty.setName(propertyDto.getName());
+        existingProperty.setPrice(propertyDto.getPrice());
 
         if (!customCurrentUserDetails.isAdmin()
                 && !existingProperty.getOwner().getId().equals(customCurrentUserDetails.getId())) {
-            throw new AccessDeniedException(dto.getId(), customCurrentUserDetails.getId());
+            throw new AccessDeniedException(propertyDto.getId(), customCurrentUserDetails.getId());
         }
 
         Property updatedProperty = repository.save(existingProperty);
@@ -108,10 +108,31 @@ public class PropertyService {
         return propertyMapper.propertyToPropertyDTO(updatedProperty);
     }
 
+    public PropertyDTO patch(Long id, PropertyDTO propertyDto, UserDetails currentUserDetails) {
+        CustomUserDetails customCurrentUserDetails = (CustomUserDetails) currentUserDetails;
+        Property existingProperty = repository.findById(id)
+                .orElseThrow(() -> new PropertyNotFoundException(id));
+
+        if (propertyDto.getName() != null) {
+            existingProperty.setName(propertyDto.getName());
+        }
+        if (propertyDto.getPrice() != null) {
+            existingProperty.setName(propertyDto.getName());
+        }
+        if (!customCurrentUserDetails.isAdmin()
+                && !existingProperty.getOwner().getId().equals(customCurrentUserDetails.getId())) {
+            throw new AccessDeniedException(id, customCurrentUserDetails.getId());
+        }
+
+        Property updatedProperty = repository.save(existingProperty);
+        logger.info("user {} Property id {} patched", customCurrentUserDetails.getId(), updatedProperty.getId());
+        return propertyMapper.propertyToPropertyDTO(updatedProperty);
+    }
+
     public void delete(Long id, UserDetails currentUserDetails) {
         CustomUserDetails customCurrentUserDetails = (CustomUserDetails) currentUserDetails;
-        PropertyDTO dto = this.findById(id, currentUserDetails);
-        logger.info("user {} Property id {} deleted", customCurrentUserDetails.getId(), dto.getId());
+        PropertyDTO propertyDto = this.findById(id, currentUserDetails);
+        logger.info("user {} Property id {} deleted", customCurrentUserDetails.getId(), propertyDto.getId());
         repository.deleteById(id);
     }
 }

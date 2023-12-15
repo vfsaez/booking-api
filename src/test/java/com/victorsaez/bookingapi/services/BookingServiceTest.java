@@ -112,46 +112,46 @@ public class BookingServiceTest {
 
     @Test
     public void shouldThrowExceptionWhenCreatingBlockWithNonexistentProperty() {
-        BookingDTO dto = new BookingDTO();
-        dto.setPropertyId(1L);
-        dto.setClientId(1L);
+        BookingDTO bookingDto = new BookingDTO();
+        bookingDto.setPropertyId(1L);
+        bookingDto.setClientId(1L);
 
         Mockito.when(propertyRepository.findById(anyLong())).thenReturn(Optional.empty());
         CustomUserDetails customUserDetails = Mockito.mock(CustomUserDetails.class);
         when(customUserDetails.getId()).thenReturn(1L);
         when(customUserDetails.isAdmin()).thenReturn(true);
         assertThrows(PropertyNotFoundException.class, () -> {
-            bookingService.insert(dto, customUserDetails);
+            bookingService.insert(bookingDto, customUserDetails);
         });
     }
 
     @Test
     public void shouldThrowExceptionWhenUpdatingBookingWithNonexistentProperty() {
-        BookingDTO dto = new BookingDTO();
-        dto.setId(1L);
-        dto.setPropertyId(1L);
+        BookingDTO bookingDto = new BookingDTO();
+        bookingDto.setId(1L);
+        bookingDto.setPropertyId(1L);
 
         Mockito.when(propertyRepository.findById(anyLong())).thenReturn(Optional.empty());
         CustomUserDetails customUserDetails = Mockito.mock(CustomUserDetails.class);
         when(customUserDetails.getId()).thenReturn(1L);
         when(customUserDetails.isAdmin()).thenReturn(true);
         assertThrows(PropertyNotFoundException.class, () -> {
-            bookingService.update(dto, customUserDetails);
+            bookingService.update(bookingDto, customUserDetails);
         });
     }
 
     @Test
     public void shouldThrowExceptionWhenCreatingBlockWithUnavailableProperty() {
-        BookingDTO dto = new BookingDTO();
-        dto.setPropertyId(1L);
-        dto.setClientId(1L);
+        BookingDTO bookingDto = new BookingDTO();
+        bookingDto.setPropertyId(1L);
+        bookingDto.setClientId(1L);
 
         Mockito.doThrow(PropertyNotAvailableException.class).when(propertyService).checkPropertyAvailabilityOnPeriod(any(), any(), any());
         CustomUserDetails customUserDetails = Mockito.mock(CustomUserDetails.class);
         when(customUserDetails.isAdmin()).thenReturn(true);
         when(customUserDetails.getId()).thenReturn(1L);
         assertThrows(PropertyNotAvailableException.class, () -> {
-            bookingService.insert(dto, customUserDetails);
+            bookingService.insert(bookingDto, customUserDetails);
         });
     }
 

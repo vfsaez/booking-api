@@ -1,6 +1,7 @@
 package com.victorsaez.bookingapi.controllers;
 
 import com.victorsaez.bookingapi.dto.BlockDTO;
+import com.victorsaez.bookingapi.dto.BookingDTO;
 import com.victorsaez.bookingapi.services.BlockService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -85,6 +86,17 @@ public class BlockController {
         block.setId(id);
         var updatedBlock = service.update(block, currentUserDetails);
         return ResponseEntity.ok().body(updatedBlock);
+    }
+    @PatchMapping("/{id}")
+    @Operation(summary = "Update a block in the database.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Block updated successfully."),
+            @ApiResponse(responseCode = "404", description = "Block not found."),
+            @ApiResponse(responseCode = "400", description = "Property \"name\" Id: 4  - not available trough given dates: Thu Dec 07 18:24:31 BRT 2023 - Thu Dec 07 18:24:31 BRT 2023")
+    })
+    public ResponseEntity<BlockDTO> patch(@PathVariable Long id, @RequestBody BlockDTO blockDTO, @Parameter(hidden = true) @AuthenticationPrincipal UserDetails currentUserDetails) {
+        BlockDTO updatedDto = service.patch(id, blockDTO, currentUserDetails);
+        return ResponseEntity.ok(updatedDto);
     }
 
     @DeleteMapping(value = "/{id}")

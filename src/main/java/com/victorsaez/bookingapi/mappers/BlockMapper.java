@@ -10,5 +10,5 @@ public interface BlockMapper {
     BlockMapper INSTANCE = Mappers.getMapper(BlockMapper.class);
 
     BlockDTO blockToBlockDTO(Block block);
-    Block blockDTOtoBlock(BlockDTO blockDTO);
+    Block blockDTOtoBlock(BlockDTO blockDto);
 }

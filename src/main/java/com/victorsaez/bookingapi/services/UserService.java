@@ -57,13 +57,13 @@ public class UserService {
             }}).orElseThrow(() -> new UserNotFoundException(id)));
     }
 
-    public UserDTO insert(UserDTO dto, UserDetails currentUserDetails) {
+    public UserDTO insert(UserDTO userDto, UserDetails currentUserDetails) {
         CustomUserDetails customCurrentUserDetails = (CustomUserDetails) currentUserDetails;
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        String hashedPassword = passwordEncoder.encode(dto.getPassword());
-        dto.setPassword(hashedPassword);
+        String hashedPassword = passwordEncoder.encode(userDto.getPassword());
+        userDto.setPassword(hashedPassword);
 
-        if (repository.findByUsername(dto.getUsername()).isPresent()) {
+        if (repository.findByUsername(userDto.getUsername()).isPresent()) {
             throw new UsernameNotAvailableException();
         }
 
@@ -71,7 +71,7 @@ public class UserService {
             throw new AccessDeniedException(customCurrentUserDetails.getId());
         }
 
-        var userSaved = repository.save(userMapper.userDTOtoUser(dto));
+        var userSaved = repository.save(userMapper.userDTOtoUser(userDto));
 
         return userMapper.userToUserDTO(userSaved);
     }
@@ -81,45 +81,76 @@ public class UserService {
         String hashedPassword = passwordEncoder.encode(signupRequest.getPassword());
         signupRequest.setPassword(hashedPassword);
 
-        UserDTO dto = new UserDTO();
-        dto.setUsername(signupRequest.getUsername());
-        dto.setPassword(signupRequest.getPassword());
-        dto.setName(signupRequest.getName());
-        dto.setRoles("USER");
+        UserDTO userDto = new UserDTO();
+        userDto.setUsername(signupRequest.getUsername());
+        userDto.setPassword(signupRequest.getPassword());
+        userDto.setName(signupRequest.getName());
+        userDto.setRoles("USER");
 
-        return this.insert(dto, null);
+        return this.insert(userDto, null);
     }
 
-    public UserDTO update(UserDTO dto, UserDetails currentUserDetails) {
+    public UserDTO update(UserDTO userDto, UserDetails currentUserDetails) {
         CustomUserDetails customCurrentUserDetails = (CustomUserDetails) currentUserDetails;
-        User existingUser = repository.findById(dto.getId())
-                .orElseThrow(() -> new UserNotFoundException(dto.getId()));
+        User existingUser = repository.findById(userDto.getId())
+                .orElseThrow(() -> new UserNotFoundException(userDto.getId()));
 
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        String hashedPassword = passwordEncoder.encode(dto.getPassword());
-        dto.setPassword(hashedPassword);
+        String hashedPassword = passwordEncoder.encode(userDto.getPassword());
+        userDto.setPassword(hashedPassword);
 
-        existingUser.setUsername(dto.getUsername());
-        existingUser.setPassword(dto.getPassword());
-        existingUser.setName(dto.getName());
+        existingUser.setUsername(userDto.getUsername());
+        existingUser.setPassword(userDto.getPassword());
+        existingUser.setName(userDto.getName());
 
         if(customCurrentUserDetails.isAdmin()) {
-            existingUser.setRoles(dto.getRoles());
+            existingUser.setRoles(userDto.getRoles());
         }
 
         if (!customCurrentUserDetails.isAdmin()
                 && !existingUser.getId().equals(customCurrentUserDetails.getId())) {
-            throw new AccessDeniedException(dto.getId(), customCurrentUserDetails.getId());
+            throw new AccessDeniedException(userDto.getId(), customCurrentUserDetails.getId());
         }
         User updatedUser = repository.save(existingUser);
 
         return userMapper.userToUserDTO((updatedUser));
     }
 
+    public UserDTO patch(Long id, UserDTO userDto, UserDetails currentUserDetails) {
+        CustomUserDetails customCurrentUserDetails = (CustomUserDetails) currentUserDetails;
+        User existingUser = repository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id));
+
+        if (userDto.getUsername() != null) {
+            existingUser.setUsername(userDto.getUsername());
+        }
+        if (userDto.getPassword() != null) {
+            BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+            String hashedPassword = passwordEncoder.encode(userDto.getPassword());
+            userDto.setPassword(hashedPassword);
+        }
+        if (userDto.getName() != null) {
+            existingUser.setName(userDto.getName());
+        }
+
+        if(customCurrentUserDetails.isAdmin() && userDto.getRoles() != null) {
+            existingUser.setRoles(userDto.getRoles());
+        }
+
+        if (!customCurrentUserDetails.isAdmin()
+                && !existingUser.getId().equals(customCurrentUserDetails.getId())) {
+            throw new AccessDeniedException(userDto.getId(), customCurrentUserDetails.getId());
+        }
+
+        User updatedUser = repository.save(existingUser);
+        logger.info("user {} User id {} patched", customCurrentUserDetails.getId(), updatedUser.getId());
+        return userMapper.userToUserDTO(updatedUser);
+    }
+
     public void delete(Long id, UserDetails currentUserDetails) {
         CustomUserDetails customCurrentUserDetails = (CustomUserDetails) currentUserDetails;
-        UserDTO dto = this.findById(id, currentUserDetails);
-        logger.info("user {} User id {} deleted", customCurrentUserDetails.getId(), dto.getId());
+        UserDTO userDto = this.findById(id, currentUserDetails);
+        logger.info("user {} User id {} deleted", customCurrentUserDetails.getId(), userDto.getId());
         repository.deleteById(id);
     }
 }

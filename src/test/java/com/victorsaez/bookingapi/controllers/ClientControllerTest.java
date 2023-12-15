@@ -25,6 +25,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -42,19 +43,19 @@ public class ClientControllerTest {
 
     @BeforeEach
     public void setup() {
-        ClientDTO clientDTO = new ClientDTO();
-        clientDTO.setId(1L);
+        ClientDTO clientDto = new ClientDTO();
+        clientDto.setId(1L);
 
         UserDetails mockUserDetails = Mockito.mock(UserDetails.class);
-        Mockito.when(mockUserDetails.getUsername()).thenReturn("testUser");
+        when(mockUserDetails.getUsername()).thenReturn("testUser");
 
-        List<ClientDTO> clientList = Collections.singletonList(clientDTO);
+        List<ClientDTO> clientList = Collections.singletonList(clientDto);
         Page<ClientDTO> clientPage = new PageImpl<>(clientList);
 
-        Mockito.when(clientService.findAll(any(Pageable.class), any(UserDetails.class))).thenReturn(clientPage);
-        Mockito.when(clientService.findById(anyLong(), any(UserDetails.class))).thenReturn(clientDTO);
-        Mockito.when(clientService.insert(any(ClientDTO.class), any(UserDetails.class))).thenReturn(clientDTO);
-        Mockito.when(clientService.update(any(ClientDTO.class), any(UserDetails.class))).thenReturn(clientDTO);
+        when(clientService.findAll(any(Pageable.class), any(UserDetails.class))).thenReturn(clientPage);
+        when(clientService.findById(anyLong(), any(UserDetails.class))).thenReturn(clientDto);
+        when(clientService.insert(any(ClientDTO.class), any(UserDetails.class))).thenReturn(clientDto);
+        when(clientService.update(any(ClientDTO.class), any(UserDetails.class))).thenReturn(clientDto);
         Mockito.doNothing().when(clientService).delete(anyLong(), any(UserDetails.class));
     }
 
@@ -83,6 +84,21 @@ public class ClientControllerTest {
                 .andExpect(content().json("{\"id\":1}"));
     }
 
+    @Test
+    public void shouldPatchClient() throws Exception {
+        ClientDTO patchedClient = new ClientDTO();
+        patchedClient.setId(1L);
+        patchedClient.setName("Patched Client");
+
+        when(clientService.patch(anyLong(), any(ClientDTO.class), any(UserDetails.class))).thenReturn(patchedClient);
+
+        mockMvc.perform(patch("/v1/clients/{id}", 1L)
+                        .with(user("testUser").roles("USER"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(patchedClient)))
+                .andExpect(status().isOk())
+                .andExpect(content().json("{\"id\":1,\"name\":\"Patched Client\"}"));
+    }
     @Test
     public void shouldCreateNewClient() throws Exception {
         ClientDTO newClient = new ClientDTO();

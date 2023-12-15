@@ -104,71 +104,71 @@ public class BlockServiceTest {
 
     @Test
     public void shouldThrowExceptionWhenCreatingBlockWithNonexistentProperty() {
-        BlockDTO dto = new BlockDTO();
-        dto.setId(1L);
-        dto.setPropertyId(1L);
+        BlockDTO blockDto = new BlockDTO();
+        blockDto.setId(1L);
+        blockDto.setPropertyId(1L);
         Calendar cal = Calendar.getInstance();
-        dto.setStartDate(cal.getTime());
+        blockDto.setStartDate(cal.getTime());
         cal.add(Calendar.DATE, 1);
-        dto.setEndDate(cal.getTime());
+        blockDto.setEndDate(cal.getTime());
 
         Mockito.when(propertyRepository.findById(anyLong())).thenReturn(Optional.empty());
         CustomUserDetails customUserDetails = Mockito.mock(CustomUserDetails.class);
         when(customUserDetails.getId()).thenReturn(1L);
         when(customUserDetails.isAdmin()).thenReturn(true);
         assertThrows(PropertyNotFoundException.class, () -> {
-            blockService.insert(dto, customUserDetails);
+            blockService.insert(blockDto, customUserDetails);
         });
     }
 
     @Test
     public void shouldThrowExceptionWhenUpdatingBlockWithNonexistentProperty() {
-        BlockDTO dto = new BlockDTO();
-        dto.setId(1L);
-        dto.setPropertyId(1L);
+        BlockDTO blockDto = new BlockDTO();
+        blockDto.setId(1L);
+        blockDto.setPropertyId(1L);
         Calendar cal = Calendar.getInstance();
-        dto.setStartDate(cal.getTime());
+        blockDto.setStartDate(cal.getTime());
         cal.add(Calendar.DATE, 1);
-        dto.setEndDate(cal.getTime());
+        blockDto.setEndDate(cal.getTime());
 
         Mockito.when(propertyRepository.findById(anyLong())).thenReturn(Optional.empty());
         CustomUserDetails customUserDetails = Mockito.mock(CustomUserDetails.class);
         when(customUserDetails.getId()).thenReturn(1L);
         when(customUserDetails.isAdmin()).thenReturn(true);
         assertThrows(PropertyNotFoundException.class, () -> {
-            blockService.update(dto, customUserDetails);
+            blockService.update(blockDto, customUserDetails);
         });
     }
 
     @Test
     public void shouldThrowExceptionWhenCreatingBlockWithUnavailableProperty() {
-        BlockDTO dto = new BlockDTO();
-        dto.setId(1L);
-        dto.setPropertyId(1L);
+        BlockDTO blockDto = new BlockDTO();
+        blockDto.setId(1L);
+        blockDto.setPropertyId(1L);
         Calendar cal = Calendar.getInstance();
-        dto.setStartDate(cal.getTime());
+        blockDto.setStartDate(cal.getTime());
         cal.add(Calendar.DATE, 1);
-        dto.setEndDate(cal.getTime());
+        blockDto.setEndDate(cal.getTime());
 
         Mockito.doThrow(PropertyNotAvailableException.class).when(propertyService).checkPropertyAvailabilityOnPeriod(any(), any(), any());
         CustomUserDetails customUserDetails = Mockito.mock(CustomUserDetails.class);
         when(customUserDetails.getId()).thenReturn(1L);
         when(customUserDetails.isAdmin()).thenReturn(true);
         assertThrows(PropertyNotAvailableException.class, () -> {
-            blockService.insert(dto, customUserDetails);
+            blockService.insert(blockDto, customUserDetails);
         });
     }
 
     @Test
     public void shouldThrowExceptionWhenUpdatingBlockWithUnavailableProperty() {
-        BlockDTO dto = new BlockDTO();
-        dto.setId(2L);
-        dto.setPropertyId(1L);
+        BlockDTO blockDto = new BlockDTO();
+        blockDto.setId(2L);
+        blockDto.setPropertyId(1L);
         Calendar cal = Calendar.getInstance();
-        dto.setStartDate(cal.getTime());
+        blockDto.setStartDate(cal.getTime());
         cal.add(Calendar.DATE, 1);
-        dto.setEndDate(cal.getTime());
-        dto.setStatus(BlockStatus.BLOCKED);
+        blockDto.setEndDate(cal.getTime());
+        blockDto.setStatus(BlockStatus.BLOCKED);
 
         Mockito.doThrow(PropertyNotAvailableException.class).when(propertyService).checkPropertyAvailabilityOnPeriod(any(), any(), any());
         CustomUserDetails customUserDetails = Mockito.mock(CustomUserDetails.class);
@@ -176,7 +176,7 @@ public class BlockServiceTest {
         when(customUserDetails.isAdmin()).thenReturn(true);
 
         assertThrows(PropertyNotAvailableException.class, () -> {
-            blockService.update(dto, customUserDetails);
+            blockService.update(blockDto, customUserDetails);
         });
     }
 }

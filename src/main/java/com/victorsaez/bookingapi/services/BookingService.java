@@ -59,15 +59,15 @@ public class BookingService {
             }}).orElseThrow(() -> new BookingNotFoundException(id)));
     }
 
-    public BookingDTO insert(BookingDTO dto, UserDetails currentUserDetails) {
+    public BookingDTO insert(BookingDTO bookingDto, UserDetails currentUserDetails) {
         CustomUserDetails customCurrentUserDetails = (CustomUserDetails) currentUserDetails;
-        Client client = clientRepository.findById(dto.getClientId())
-                .orElseThrow(() -> new ClientNotFoundException(dto.getClientId()));
-        Property property = propertyRepository.findById(dto.getPropertyId())
-                .orElseThrow(() -> new PropertyNotFoundException(dto.getPropertyId()));
-        propertyService.checkPropertyAvailabilityOnPeriod(property, dto.getStartDate(), dto.getEndDate());
+        Client client = clientRepository.findById(bookingDto.getClientId())
+                .orElseThrow(() -> new ClientNotFoundException(bookingDto.getClientId()));
+        Property property = propertyRepository.findById(bookingDto.getPropertyId())
+                .orElseThrow(() -> new PropertyNotFoundException(bookingDto.getPropertyId()));
+        propertyService.checkPropertyAvailabilityOnPeriod(property, bookingDto.getStartDate(), bookingDto.getEndDate());
 
-        Booking booking = bookingMapper.bookingDTOtoBooking(dto);
+        Booking booking = bookingMapper.bookingDTOtoBooking(bookingDto);
         booking.setClient(client);
         booking.setProperty(property);
         booking.setPrice(property.getPrice());
@@ -78,26 +78,50 @@ public class BookingService {
         return bookingMapper.bookingToBookingDTO(createdBooking);
     }
 
-
-    public BookingDTO update(BookingDTO dto, UserDetails currentUserDetails) throws AccessDeniedException, PropertyNotAvailableException, PropertyNotFoundException, BookingNotFoundException {
+    public BookingDTO patch(Long id, BookingDTO bookingDto, UserDetails currentUserDetails) {
         CustomUserDetails customCurrentUserDetails = (CustomUserDetails) currentUserDetails;
-        Booking existingBooking = repository.findById(dto.getId())
-                .orElseThrow(() -> new BookingNotFoundException(dto.getId()));
+        Booking existingBooking = repository.findById(id)
+                .orElseThrow(() -> new BookingNotFoundException(id));
 
-        Property property = propertyRepository.findById(dto.getPropertyId())
-                .orElseThrow(() -> new PropertyNotFoundException(dto.getPropertyId()));
-
-        if (existingBooking.getStatus().equals(BookingStatus.CANCELLED) && !dto.getStatus().equals(BookingStatus.CANCELLED)) {
-            propertyService.checkPropertyAvailabilityOnPeriod(property, dto.getStartDate(), dto.getEndDate());
+        if (bookingDto.getStartDate() != null) {
+            existingBooking.setStartDate(bookingDto.getStartDate());
         }
-
-        existingBooking.setStartDate(dto.getStartDate());
-        existingBooking.setEndDate(dto.getEndDate());
-        existingBooking.setStatus(dto.getStatus());
+        if (bookingDto.getEndDate() != null) {
+            existingBooking.setEndDate(bookingDto.getEndDate());
+        }
+        if (bookingDto.getStatus() != null) {
+            existingBooking.setStatus(bookingDto.getStatus());
+        }
 
         if (!customCurrentUserDetails.isAdmin()
                 && !existingBooking.getOwner().getId().equals(customCurrentUserDetails.getId())) {
-            throw new AccessDeniedException(dto.getId(), customCurrentUserDetails.getId());
+            throw new AccessDeniedException(id, customCurrentUserDetails.getId());
+        }
+
+        Booking updatedBooking = repository.save(existingBooking);
+        logger.info("user {} Booking id {} patched for property id {} and client id {}", customCurrentUserDetails.getId(), updatedBooking.getId(), updatedBooking.getProperty().getId(), updatedBooking.getClient().getId());
+        return bookingMapper.bookingToBookingDTO(updatedBooking);
+    }
+
+    public BookingDTO update(BookingDTO bookingDto, UserDetails currentUserDetails) throws AccessDeniedException, PropertyNotAvailableException, PropertyNotFoundException, BookingNotFoundException {
+        CustomUserDetails customCurrentUserDetails = (CustomUserDetails) currentUserDetails;
+        Booking existingBooking = repository.findById(bookingDto.getId())
+                .orElseThrow(() -> new BookingNotFoundException(bookingDto.getId()));
+
+        Property property = propertyRepository.findById(bookingDto.getPropertyId())
+                .orElseThrow(() -> new PropertyNotFoundException(bookingDto.getPropertyId()));
+
+        if (existingBooking.getStatus().equals(BookingStatus.CANCELLED) && !bookingDto.getStatus().equals(BookingStatus.CANCELLED)) {
+            propertyService.checkPropertyAvailabilityOnPeriod(property, bookingDto.getStartDate(), bookingDto.getEndDate());
+        }
+
+        existingBooking.setStartDate(bookingDto.getStartDate());
+        existingBooking.setEndDate(bookingDto.getEndDate());
+        existingBooking.setStatus(bookingDto.getStatus());
+
+        if (!customCurrentUserDetails.isAdmin()
+                && !existingBooking.getOwner().getId().equals(customCurrentUserDetails.getId())) {
+            throw new AccessDeniedException(bookingDto.getId(), customCurrentUserDetails.getId());
         }
 
         Booking updatedBooking = repository.save(existingBooking);
@@ -107,8 +131,8 @@ public class BookingService {
 
     public void delete(Long id, UserDetails currentUserDetails) {
         CustomUserDetails customCurrentUserDetails = (CustomUserDetails) currentUserDetails;
-        BookingDTO dto = this.findById(id, currentUserDetails);
-        logger.info("user {} Booking id {} deleted for property id {} and client id {}", customCurrentUserDetails.getId(), dto.getId(), dto.getPropertyId(), dto.getClientId());
+        BookingDTO bookingDto = this.findById(id, currentUserDetails);
+        logger.info("user {} Booking id {} deleted for property id {} and client id {}", customCurrentUserDetails.getId(), bookingDto.getId(), bookingDto.getPropertyId(), bookingDto.getClientId());
         repository.deleteById(id);
     }
 }

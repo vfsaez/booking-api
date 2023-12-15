@@ -97,4 +97,16 @@ public class PropertyController {
         var updatedProperty = service.update(property, currentUserDetails);
         return ResponseEntity.ok().body(updatedProperty);
     }
+
+    @PatchMapping("/{id}")
+    @Operation(summary = "Update a property in the database.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Property updated successfully."),
+            @ApiResponse(responseCode = "404", description = "Property not found."),
+            @ApiResponse(responseCode = "400", description = "Invalid request.")
+    })
+    public ResponseEntity<PropertyDTO> patch(@PathVariable Long id, @RequestBody PropertyDTO propertyDTO, @Parameter(hidden = true) @AuthenticationPrincipal UserDetails currentUserDetails) {
+        PropertyDTO updatedDto = service.patch(id, propertyDTO, currentUserDetails);
+        return ResponseEntity.ok(updatedDto);
+    }
 }

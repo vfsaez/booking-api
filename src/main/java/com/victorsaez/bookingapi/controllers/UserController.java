@@ -1,5 +1,6 @@
 package com.victorsaez.bookingapi.controllers;
 
+import com.victorsaez.bookingapi.dto.BlockDTO;
 import com.victorsaez.bookingapi.dto.UserDTO;
 import com.victorsaez.bookingapi.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -97,5 +98,17 @@ public class UserController {
         user.setId(id);
         var updatedUser = service.update(user, currentUserDetails);
         return ResponseEntity.ok().body(updatedUser);
+    }
+
+    @PatchMapping("/{id}")
+    @Operation(summary = "Update a user in the database.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User updated successfully."),
+            @ApiResponse(responseCode = "404", description = "User not found."),
+            @ApiResponse(responseCode = "400", description = "Invalid request.")
+    })
+    public ResponseEntity<UserDTO> patch(@PathVariable Long id, @RequestBody UserDTO userDTO, @Parameter(hidden = true) @AuthenticationPrincipal UserDetails currentUserDetails) {
+        UserDTO updatedDto = service.patch(id, userDTO, currentUserDetails);
+        return ResponseEntity.ok(updatedDto);
     }
 }

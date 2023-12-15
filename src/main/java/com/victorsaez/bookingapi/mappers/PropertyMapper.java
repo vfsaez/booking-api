@@ -10,5 +10,5 @@ public interface PropertyMapper {
     PropertyMapper INSTANCE = Mappers.getMapper(PropertyMapper.class);
 
     PropertyDTO propertyToPropertyDTO(Property property);
-    Property propertyDTOtoProperty(PropertyDTO propertyDTO);
+    Property propertyDTOtoProperty(PropertyDTO propertyDto);
 }

@@ -1,5 +1,6 @@
 package com.victorsaez.bookingapi.controllers;
 
+import com.victorsaez.bookingapi.dto.BlockDTO;
 import com.victorsaez.bookingapi.dto.PropertyDTO;
 import com.victorsaez.bookingapi.dto.ClientDTO;
 import com.victorsaez.bookingapi.services.ClientService;
@@ -87,6 +88,17 @@ public class ClientController {
         return ResponseEntity.ok().body(updatedClient);
     }
 
+    @PatchMapping("/{id}")
+    @Operation(summary = "Update a client in the database.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Client updated successfully."),
+            @ApiResponse(responseCode = "404", description = "Client not found."),
+            @ApiResponse(responseCode = "400", description = "Invalid request.")
+    })
+    public ResponseEntity<ClientDTO> patch(@PathVariable Long id, @RequestBody ClientDTO clientDTO, @Parameter(hidden = true) @AuthenticationPrincipal UserDetails currentUserDetails) {
+        ClientDTO updatedDto = service.patch(id, clientDTO, currentUserDetails);
+        return ResponseEntity.ok(updatedDto);
+    }
     @DeleteMapping(value = "/{id}")
     @Operation(summary = "Delete client by ID.")
     @ApiResponses(value = {

@@ -26,6 +26,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -43,21 +44,21 @@ public class UserControllerTest {
 
     @BeforeEach
     public void setup() {
-        UserDTO userDTO = new UserDTO();
-        userDTO.setId(1L);
-        userDTO.setUsername("testUser");
-        userDTO.setName("Test User");
+        UserDTO userDto = new UserDTO();
+        userDto.setId(1L);
+        userDto.setUsername("testUser");
+        userDto.setName("Test User");
 
         UserDetails mockUserDetails = Mockito.mock(UserDetails.class);
-        Mockito.when(mockUserDetails.getUsername()).thenReturn("testUser");
+        when(mockUserDetails.getUsername()).thenReturn("testUser");
 
-        List<UserDTO> userList = Collections.singletonList(userDTO);
+        List<UserDTO> userList = Collections.singletonList(userDto);
         Page<UserDTO> userPage = new PageImpl<>(userList);
 
-        Mockito.when(userService.findAll(any(Pageable.class), any(UserDetails.class))).thenReturn(userPage);
-        Mockito.when(userService.findById(anyLong(), any(UserDetails.class))).thenReturn(userDTO);
-        Mockito.when(userService.insert(any(UserDTO.class), any(UserDetails.class))).thenReturn(userDTO);
-        Mockito.when(userService.update(any(UserDTO.class), any(UserDetails.class))).thenReturn(userDTO);
+        when(userService.findAll(any(Pageable.class), any(UserDetails.class))).thenReturn(userPage);
+        when(userService.findById(anyLong(), any(UserDetails.class))).thenReturn(userDto);
+        when(userService.insert(any(UserDTO.class), any(UserDetails.class))).thenReturn(userDto);
+        when(userService.update(any(UserDTO.class), any(UserDetails.class))).thenReturn(userDto);
         Mockito.doNothing().when(userService).delete(anyLong(), any(UserDetails.class));
     }
 
@@ -66,6 +67,22 @@ public class UserControllerTest {
         mockMvc.perform(get("/v1/blocks")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void shouldPatchUser() throws Exception {
+        UserDTO patchedUser = new UserDTO();
+        patchedUser.setId(1L);
+        patchedUser.setUsername("Patched User");
+
+        when(userService.patch(anyLong(), any(UserDTO.class), any(UserDetails.class))).thenReturn(patchedUser);
+
+        mockMvc.perform(patch("/v1/users/{id}", 1L)
+                        .with(user("testUser").roles("USER"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(patchedUser)))
+                .andExpect(status().isOk())
+                .andExpect(content().json("{\"id\":1,\"username\":\"Patched User\"}"));
     }
 
     @Test

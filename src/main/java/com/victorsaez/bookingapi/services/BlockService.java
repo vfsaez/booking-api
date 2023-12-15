@@ -63,49 +63,74 @@ public class BlockService {
             }}).orElseThrow(() -> new BlockNotFoundException(id)));
     }
 
-    public BlockDTO insert(BlockDTO dto, UserDetails currentUserDetails) {
+    public BlockDTO insert(BlockDTO blockDto, UserDetails currentUserDetails) {
         CustomUserDetails customCurrentUserDetails = (CustomUserDetails) currentUserDetails;
-        Property property = propertyRepository.findById(dto.getPropertyId())
-                .orElseThrow(() -> new PropertyNotFoundException(dto.getPropertyId()));
+        Property property = propertyRepository.findById(blockDto.getPropertyId())
+                .orElseThrow(() -> new PropertyNotFoundException(blockDto.getPropertyId()));
 
-        Block block = blockMapper.blockDTOtoBlock(dto);
+        Block block = blockMapper.blockDTOtoBlock(blockDto);
         block.setProperty(property);
         block.setOwner(customCurrentUserDetails.getUser());
-        propertyService.checkPropertyAvailabilityOnPeriod(property, dto.getStartDate(), dto.getEndDate());
+        propertyService.checkPropertyAvailabilityOnPeriod(property, blockDto.getStartDate(), blockDto.getEndDate());
         Block createdBlock = repository.save(block);
         logger.info("user {} Block id {} created for property id {}", customCurrentUserDetails.getId(), createdBlock.getId(), createdBlock.getProperty().getId());
         return blockMapper.blockToBlockDTO(createdBlock);
     }
 
 
-    public BlockDTO update(BlockDTO dto, UserDetails currentUserDetails) {
+    public BlockDTO update(BlockDTO blockDto, UserDetails currentUserDetails) {
         CustomUserDetails customCurrentUserDetails = (CustomUserDetails) currentUserDetails;
-        Block existingBlock = repository.findById(dto.getId())
-                .orElseThrow(() -> new BlockNotFoundException(dto.getId()));
+        Block existingBlock = repository.findById(blockDto.getId())
+                .orElseThrow(() -> new BlockNotFoundException(blockDto.getId()));
 
-        Property property = propertyRepository.findById(dto.getPropertyId())
-                .orElseThrow(() -> new PropertyNotFoundException(dto.getPropertyId()));
+        Property property = propertyRepository.findById(blockDto.getPropertyId())
+                .orElseThrow(() -> new PropertyNotFoundException(blockDto.getPropertyId()));
 
-        if (existingBlock.getStatus().equals(BlockStatus.CANCELLED) && !dto.getStatus().equals(BlockStatus.CANCELLED)) {
-            propertyService.checkPropertyAvailabilityOnPeriod(property, dto.getStartDate(), dto.getEndDate());
+        if (existingBlock.getStatus().equals(BlockStatus.CANCELLED) && !blockDto.getStatus().equals(BlockStatus.CANCELLED)) {
+            propertyService.checkPropertyAvailabilityOnPeriod(property, blockDto.getStartDate(), blockDto.getEndDate());
         }
 
-        existingBlock.setStartDate(dto.getStartDate());
-        existingBlock.setEndDate(dto.getEndDate());
-        existingBlock.setStatus(dto.getStatus());
+        existingBlock.setStartDate(blockDto.getStartDate());
+        existingBlock.setEndDate(blockDto.getEndDate());
+        existingBlock.setStatus(blockDto.getStatus());
         if (!customCurrentUserDetails.isAdmin()
                 && !existingBlock.getOwner().getId().equals(customCurrentUserDetails.getId())) {
-            throw new AccessDeniedException(dto.getId(), customCurrentUserDetails.getId());
+            throw new AccessDeniedException(blockDto.getId(), customCurrentUserDetails.getId());
         }
         Block updatedBlock = repository.save(existingBlock);
         logger.info("user {} Block id {} updated for property id {}", customCurrentUserDetails.getId(), updatedBlock.getId(), updatedBlock.getProperty().getId());
         return blockMapper.blockToBlockDTO(updatedBlock);
     }
 
+    public BlockDTO patch(Long id, BlockDTO blockDto, UserDetails currentUserDetails) {
+        CustomUserDetails customCurrentUserDetails = (CustomUserDetails) currentUserDetails;
+        Block existingBlock = repository.findById(id)
+                .orElseThrow(() -> new BlockNotFoundException(id));
+
+        if (blockDto.getStartDate() != null) {
+            existingBlock.setStartDate(blockDto.getStartDate());
+        }
+        if (blockDto.getEndDate() != null) {
+            existingBlock.setEndDate(blockDto.getEndDate());
+        }
+        if (blockDto.getStatus() != null) {
+            existingBlock.setStatus(blockDto.getStatus());
+        }
+
+        if (!customCurrentUserDetails.isAdmin()
+                && !existingBlock.getOwner().getId().equals(customCurrentUserDetails.getId())) {
+            throw new AccessDeniedException(id, customCurrentUserDetails.getId());
+        }
+
+        Block updatedBlock = repository.save(existingBlock);
+        logger.info("user {} Block id {} patched for property id {}", customCurrentUserDetails.getId(), updatedBlock.getId(), updatedBlock.getProperty().getId());
+        return blockMapper.blockToBlockDTO(updatedBlock);
+    }
+
     public void delete(Long id, UserDetails currentUserDetails) {
         CustomUserDetails customCurrentUserDetails = (CustomUserDetails) currentUserDetails;
-        BlockDTO dto = this.findById(id, currentUserDetails);
-        logger.info("user {} Block id {} deleted for property id {}", customCurrentUserDetails.getId(), dto.getId(), dto.getPropertyId());
+        BlockDTO blockDto = this.findById(id, currentUserDetails);
+        logger.info("user {} Block id {} deleted for property id {}", customCurrentUserDetails.getId(), blockDto.getId(), blockDto.getPropertyId());
         repository.deleteById(id);
     }
 }

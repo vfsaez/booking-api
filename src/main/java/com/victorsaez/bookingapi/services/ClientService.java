@@ -54,9 +54,9 @@ public class ClientService {
         }).orElseThrow(() -> new ClientNotFoundException(id)));
     }
 
-    public ClientDTO insert(ClientDTO dto, UserDetails currentUserDetails) {
+    public ClientDTO insert(ClientDTO clientDto, UserDetails currentUserDetails) {
         CustomUserDetails customCurrentUserDetails = (CustomUserDetails) currentUserDetails;
-        Client clientToSave = clientMapper.clientDTOtoClient(dto);
+        Client clientToSave = clientMapper.clientDTOtoClient(clientDto);
 
         clientToSave.setOwner(((CustomUserDetails) currentUserDetails).getUser());
         Client savedClient = repository.save(clientToSave);
@@ -64,16 +64,16 @@ public class ClientService {
         return clientMapper.clientToClientDTO(savedClient);
     }
 
-    public ClientDTO update(ClientDTO dto, UserDetails currentUserDetails) {
+    public ClientDTO update(ClientDTO clientDto, UserDetails currentUserDetails) {
         CustomUserDetails customCurrentUserDetails = (CustomUserDetails) currentUserDetails;
-        Client existingClient = repository.findById(dto.getId())
-                .orElseThrow(() -> new ClientNotFoundException(dto.getId()));
+        Client existingClient = repository.findById(clientDto.getId())
+                .orElseThrow(() -> new ClientNotFoundException(clientDto.getId()));
 
-        existingClient.setName(dto.getName());
+        existingClient.setName(clientDto.getName());
 
         if (!customCurrentUserDetails.isAdmin()
                 && !existingClient.getOwner().getId().equals(customCurrentUserDetails.getId())) {
-            throw new AccessDeniedException(dto.getId(), customCurrentUserDetails.getId());
+            throw new AccessDeniedException(clientDto.getId(), customCurrentUserDetails.getId());
         }
 
         Client updatedClient = repository.save(existingClient);
@@ -81,10 +81,30 @@ public class ClientService {
         return clientMapper.clientToClientDTO(updatedClient);
     }
 
+    public ClientDTO patch(Long id, ClientDTO clientDto, UserDetails currentUserDetails) {
+        CustomUserDetails customCurrentUserDetails = (CustomUserDetails) currentUserDetails;
+        Client existingClient = repository.findById(id)
+                .orElseThrow(() -> new ClientNotFoundException(id));
+
+        if (clientDto.getName() != null) {
+            existingClient.setName(clientDto.getName());
+        }
+        // Add similar checks for other updatable fields
+
+        if (!customCurrentUserDetails.isAdmin()
+                && !existingClient.getOwner().getId().equals(customCurrentUserDetails.getId())) {
+            throw new AccessDeniedException(id, customCurrentUserDetails.getId());
+        }
+
+        Client updatedClient = repository.save(existingClient);
+        logger.info("user {} Client id {} patched", customCurrentUserDetails.getId(), updatedClient.getId());
+        return clientMapper.clientToClientDTO(updatedClient);
+    }
+
     public void delete(Long id, UserDetails currentUserDetails) {
         CustomUserDetails customCurrentUserDetails = (CustomUserDetails) currentUserDetails;
-        ClientDTO dto = this.findById(id, currentUserDetails);
-        logger.info("user {} Client id {} deleted", customCurrentUserDetails.getId(), dto.getId());
+        ClientDTO clientDto = this.findById(id, currentUserDetails);
+        logger.info("user {} Client id {} deleted", customCurrentUserDetails.getId(), clientDto.getId());
         repository.deleteById(id);
     }
 }

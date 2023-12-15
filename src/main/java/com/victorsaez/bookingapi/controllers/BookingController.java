@@ -1,7 +1,9 @@
 package com.victorsaez.bookingapi.controllers;
 
+import com.victorsaez.bookingapi.config.CustomUserDetails;
 import com.victorsaez.bookingapi.dto.BookingDTO;
 import com.victorsaez.bookingapi.entities.Booking;
+import com.victorsaez.bookingapi.exceptions.BookingNotFoundException;
 import com.victorsaez.bookingapi.services.BookingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -21,6 +23,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @RestController
@@ -74,6 +77,19 @@ public class BookingController {
                 .body(createdBooking);
     }
 
+    @PatchMapping(value = "/{id}")
+    @Operation(summary = "Update a booking in the database.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Booking updated successfully."),
+            @ApiResponse(responseCode = "404", description = "Booking not found."),
+            @ApiResponse(responseCode = "400", description = "Property \"name\" Id: 4  - not available trough given dates: Thu Dec 07 18:24:31 BRT 2023 - Thu Dec 07 18:24:31 BRT 2023")
+    })
+    public ResponseEntity<BookingDTO> patch(@PathVariable Long id, @RequestBody BookingDTO bookingDto, @Parameter(hidden = true) @AuthenticationPrincipal UserDetails currentUserDetails) {
+        bookingDto.setId(id);
+        BookingDTO updatedDto = service.patch(id, bookingDto, currentUserDetails);
+        return ResponseEntity.ok(updatedDto);
+    }
+
     @PutMapping(value = "/{id}")
     @Operation(summary = "Update a booking in the database.")
     @ApiResponses(value = {
@@ -81,9 +97,9 @@ public class BookingController {
             @ApiResponse(responseCode = "404", description = "Booking not found."),
             @ApiResponse(responseCode = "400", description = "Property \"name\" Id: 4  - not available trough given dates: Thu Dec 07 18:24:31 BRT 2023 - Thu Dec 07 18:24:31 BRT 2023")
     })
-    public ResponseEntity<BookingDTO> update(@PathVariable Long id, @RequestBody @Valid BookingDTO booking, @Parameter(hidden = true) @AuthenticationPrincipal UserDetails currentUserDetails) {
-        booking.setId(id);
-        var updatedBooking = service.update(booking, currentUserDetails);
+    public ResponseEntity<BookingDTO> update(@PathVariable Long id, @RequestBody @Valid BookingDTO bookingDto, @Parameter(hidden = true) @AuthenticationPrincipal UserDetails currentUserDetails) {
+        bookingDto.setId(id);
+        var updatedBooking = service.update(bookingDto, currentUserDetails);
         return ResponseEntity.ok().body(updatedBooking);
     }
 
