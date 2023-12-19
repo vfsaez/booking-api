@@ -196,9 +196,6 @@ public class BookingServiceTest {
 
     @Test
     public void shouldThrowExceptionWhenRebookingUnavailableProperty() {
-        BookingDTO bookingDto = new BookingDTO();
-        bookingDto.setId(1L);
-        bookingDto.setStatus(BookingStatus.CANCELLED);
 
         Mockito.doThrow(PropertyNotAvailableException.class).when(propertyService).checkPropertyAvailabilityOnPeriod(any(), any(), any());
 
@@ -207,21 +204,18 @@ public class BookingServiceTest {
         when(customUserDetails.isAdmin()).thenReturn(true);
 
         assertThrows(PropertyNotAvailableException.class, () -> {
-            bookingService.rebook(bookingDto.getId(), customUserDetails);
+            bookingService.rebook(2L, customUserDetails);
         });
     }
 
     @Test
     public void shouldCancelBooking() {
-        BookingDTO bookingDto = new BookingDTO();
-        bookingDto.setId(1L);
-        bookingDto.setStatus(BookingStatus.BOOKED);
 
         CustomUserDetails customUserDetails = Mockito.mock(CustomUserDetails.class);
         when(customUserDetails.getId()).thenReturn(1L);
         when(customUserDetails.isAdmin()).thenReturn(true);
 
-        BookingDTO cancelledBooking = bookingService.cancel(bookingDto.getId(), customUserDetails);
+        BookingDTO cancelledBooking = bookingService.cancel(1L, customUserDetails);
 
         assertEquals(BookingStatus.CANCELLED, cancelledBooking.getStatus());
     }
