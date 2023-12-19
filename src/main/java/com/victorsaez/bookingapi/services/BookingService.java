@@ -135,4 +135,35 @@ public class BookingService {
         logger.info("user {} Booking id {} deleted for property id {} and client id {}", customCurrentUserDetails.getId(), bookingDto.getId(), bookingDto.getPropertyId(), bookingDto.getClientId());
         repository.deleteById(id);
     }
+
+    public BookingDTO cancel(Long id, UserDetails currentUserDetails) throws BookingNotFoundException, AccessDeniedException {
+        CustomUserDetails customCurrentUserDetails = (CustomUserDetails) currentUserDetails;
+        Booking existingBooking = repository.findById(id)
+                .orElseThrow(() -> new BookingNotFoundException(id));
+        if (!customCurrentUserDetails.isAdmin()
+                && !existingBooking.getOwner().getId().equals(customCurrentUserDetails.getId())) {
+            throw new AccessDeniedException(id, customCurrentUserDetails.getId());
+        }
+        existingBooking.setStatus(BookingStatus.CANCELLED);
+        Booking cancelledBooking = repository.save(existingBooking);
+        logger.info("user {} Booking id {} cancelled for property id {} and client id {}", customCurrentUserDetails.getId(), cancelledBooking.getId(), cancelledBooking.getProperty().getId(), cancelledBooking.getClient().getId());
+        return bookingMapper.bookingToBookingDTO(cancelledBooking);
+    }
+
+    public BookingDTO rebook(Long id, UserDetails currentUserDetails) throws PropertyNotAvailableException, PropertyNotFoundException, BookingNotFoundException {
+        CustomUserDetails customCurrentUserDetails = (CustomUserDetails) currentUserDetails;
+        Booking existingBooking = repository.findById(id)
+                .orElseThrow(() -> new BookingNotFoundException(id));
+        if (!customCurrentUserDetails.isAdmin()
+                && !existingBooking.getOwner().getId().equals(customCurrentUserDetails.getId())) {
+            throw new AccessDeniedException(id, customCurrentUserDetails.getId());
+        }
+        Property property = propertyRepository.findById(existingBooking.getProperty().getId())
+                .orElseThrow(() -> new PropertyNotFoundException(existingBooking.getProperty().getId()));
+        propertyService.checkPropertyAvailabilityOnPeriod(property, existingBooking.getStartDate(), existingBooking.getEndDate());
+        existingBooking.setStatus(BookingStatus.BOOKED);
+        Booking rebookedBooking = repository.save(existingBooking);
+        logger.info("user {} Booking id {} rebooked for property id {} and client id {}", customCurrentUserDetails.getId(), rebookedBooking.getId(), rebookedBooking.getProperty().getId(), rebookedBooking.getClient().getId());
+        return bookingMapper.bookingToBookingDTO(rebookedBooking);
+    }
 }

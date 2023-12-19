@@ -6,6 +6,7 @@ import com.victorsaez.bookingapi.dto.BookingDTO;
 import com.victorsaez.bookingapi.entities.*;
 import com.victorsaez.bookingapi.enums.BlockStatus;
 import com.victorsaez.bookingapi.enums.BookingStatus;
+import com.victorsaez.bookingapi.exceptions.AccessDeniedException;
 import com.victorsaez.bookingapi.exceptions.PropertyNotAvailableException;
 import com.victorsaez.bookingapi.exceptions.PropertyNotFoundException;
 import com.victorsaez.bookingapi.repositories.BookingRepository;
@@ -59,6 +60,9 @@ public class BookingServiceTest {
         client.setId(1L);
         Mockito.when(clientRepository.findById(anyLong())).thenReturn(Optional.of(client));
 
+        User user = new User();
+        user.setId(1L);
+
         // Mock a Property
         Property property = new Property();
         property.setId(1L);
@@ -73,6 +77,7 @@ public class BookingServiceTest {
         bookedBooking.setStartDate(cal.getTime());
         cal.add(Calendar.DATE, 1);
         bookedBooking.setEndDate(cal.getTime());
+        bookedBooking.setOwner(user);
 
 
         Booking cancelledBooking = new Booking();
@@ -84,6 +89,7 @@ public class BookingServiceTest {
         cancelledBooking.setStartDate(cal.getTime());
         cal.add(Calendar.DATE, 1);
         cancelledBooking.setEndDate(cal.getTime());
+        cancelledBooking.setOwner(user);
 
 
         Mockito.when(bookingRepository.findById(1L)).thenReturn(Optional.of(bookedBooking));
@@ -170,6 +176,68 @@ public class BookingServiceTest {
         when(customUserDetails.getId()).thenReturn(1L);
         assertThrows(PropertyNotAvailableException.class, () -> {
             bookingService.update(updatedBooking, customUserDetails);
+        });
+    }
+
+    @Test
+    public void shouldRebookBooking() {
+        BookingDTO bookingDto = new BookingDTO();
+        bookingDto.setId(1L);
+        bookingDto.setStatus(BookingStatus.CANCELLED);
+
+        CustomUserDetails customUserDetails = Mockito.mock(CustomUserDetails.class);
+        when(customUserDetails.getId()).thenReturn(1L);
+        when(customUserDetails.isAdmin()).thenReturn(true);
+
+        BookingDTO rebookedBooking = bookingService.rebook(bookingDto.getId(), customUserDetails);
+
+        assertEquals(BookingStatus.BOOKED, rebookedBooking.getStatus());
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenRebookingUnavailableProperty() {
+        BookingDTO bookingDto = new BookingDTO();
+        bookingDto.setId(1L);
+        bookingDto.setStatus(BookingStatus.CANCELLED);
+
+        Mockito.doThrow(PropertyNotAvailableException.class).when(propertyService).checkPropertyAvailabilityOnPeriod(any(), any(), any());
+
+        CustomUserDetails customUserDetails = Mockito.mock(CustomUserDetails.class);
+        when(customUserDetails.getId()).thenReturn(1L);
+        when(customUserDetails.isAdmin()).thenReturn(true);
+
+        assertThrows(PropertyNotAvailableException.class, () -> {
+            bookingService.rebook(bookingDto.getId(), customUserDetails);
+        });
+    }
+
+    @Test
+    public void shouldCancelBooking() {
+        BookingDTO bookingDto = new BookingDTO();
+        bookingDto.setId(1L);
+        bookingDto.setStatus(BookingStatus.BOOKED);
+
+        CustomUserDetails customUserDetails = Mockito.mock(CustomUserDetails.class);
+        when(customUserDetails.getId()).thenReturn(1L);
+        when(customUserDetails.isAdmin()).thenReturn(true);
+
+        BookingDTO cancelledBooking = bookingService.cancel(bookingDto.getId(), customUserDetails);
+
+        assertEquals(BookingStatus.CANCELLED, cancelledBooking.getStatus());
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenNonAdminUserTriesToCancelBooking() {
+        BookingDTO bookingDto = new BookingDTO();
+        bookingDto.setId(1L);
+        bookingDto.setStatus(BookingStatus.BOOKED);
+
+        CustomUserDetails customUserDetails = Mockito.mock(CustomUserDetails.class);
+        when(customUserDetails.getId()).thenReturn(2L);
+        when(customUserDetails.isAdmin()).thenReturn(false);
+
+        assertThrows(AccessDeniedException.class, () -> {
+            bookingService.cancel(bookingDto.getId(), customUserDetails);
         });
     }
 }

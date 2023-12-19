@@ -6,9 +6,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import java.util.Date;
 
 @ResponseStatus(HttpStatus.BAD_REQUEST)
-public class UsernameNotAvailableException extends NotAvailableException {
+public class NotAvailableException extends RuntimeException {
 
-    public UsernameNotAvailableException() {
-        super("Username is already taken");
+    public NotAvailableException(String message) {
+        super(message);
     }
 }

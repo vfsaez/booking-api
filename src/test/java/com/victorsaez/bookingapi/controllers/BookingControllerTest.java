@@ -3,6 +3,8 @@ package com.victorsaez.bookingapi.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.victorsaez.bookingapi.dto.BookingDTO;
 import com.victorsaez.bookingapi.enums.BookingStatus;
+import com.victorsaez.bookingapi.exceptions.AccessDeniedException;
+import com.victorsaez.bookingapi.exceptions.PropertyNotAvailableException;
 import com.victorsaez.bookingapi.services.BookingService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -145,4 +147,64 @@ public class BookingControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
     }
+
+    @Test
+    public void shouldRebookBooking() throws Exception {
+        BookingDTO bookingDto = new BookingDTO();
+        bookingDto.setId(1L);
+        bookingDto.setStatus(BookingStatus.BOOKED);
+
+        when(bookingService.rebook(anyLong(), any(UserDetails.class))).thenReturn(bookingDto);
+
+        mockMvc.perform(post("/v1/bookings/{id}/rebook", 1L)
+                        .with(user("testUser").roles("USER"))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json("{\"id\":1,\"status\":\"BOOKED\"}"));
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenRebookingUnavailableProperty() throws Exception {
+        BookingDTO bookingDto = new BookingDTO();
+        bookingDto.setId(1L);
+        bookingDto.setStatus(BookingStatus.CANCELLED);
+        PropertyNotAvailableException ex = new PropertyNotAvailableException();
+
+        when(bookingService.rebook(anyLong(), any(UserDetails.class))).thenThrow(ex);
+
+        mockMvc.perform(post("/v1/bookings/{id}/rebook", 1L)
+                        .with(user("testUser").roles("USER"))
+                        .contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void shouldCancelBooking() throws Exception {
+        BookingDTO bookingDto = new BookingDTO();
+        bookingDto.setId(1L);
+        bookingDto.setStatus(BookingStatus.CANCELLED);
+
+        when(bookingService.cancel(anyLong(), any(UserDetails.class))).thenReturn(bookingDto);
+
+        mockMvc.perform(post("/v1/bookings/{id}/cancel", 1L)
+                        .with(user("testUser").roles("USER"))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json("{\"id\":1,\"status\":\"CANCELLED\"}"));
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenNonAdminUserTriesToCancelBooking() throws Exception {
+        BookingDTO bookingDto = new BookingDTO();
+        bookingDto.setId(1L);
+        bookingDto.setStatus(BookingStatus.BOOKED);
+
+        when(bookingService.cancel(anyLong(), any(UserDetails.class))).thenThrow(AccessDeniedException.class);
+
+        mockMvc.perform(post("/v1/bookings/{id}/cancel", 1L)
+                        .with(user("testUser").roles("USER"))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+    }
+
 }

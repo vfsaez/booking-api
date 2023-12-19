@@ -114,4 +114,28 @@ public class BookingController {
         service.delete(id, currentUserDetails);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping(value = "/{id}/cancel")
+    @Operation(summary = "Cancel a booking by ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Cancelled with success."),
+            @ApiResponse(responseCode = "404", description = "Booking not found."),
+            @ApiResponse(responseCode = "400", description = "Property \"name\" Id: 4  - not available trough given dates: Thu Dec 07 18:24:31 BRT 2023 - Thu Dec 07 18:24:31 BRT 2023")
+    })
+    public ResponseEntity<BookingDTO> cancel(@PathVariable Long id, @Parameter(hidden = true) @AuthenticationPrincipal UserDetails currentUserDetails) {
+        var cancelledBooking = service.cancel(id, currentUserDetails);
+        return ResponseEntity.ok().body(cancelledBooking);
+    }
+
+    @PostMapping(value = "/{id}/rebook")
+    @Operation(summary = "Rebook a cancelled a booking by ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Rebooked with success."),
+            @ApiResponse(responseCode = "404", description = "Booking not found."),
+            @ApiResponse(responseCode = "400", description = "Property \"name\" Id: 4  - not available trough given dates: Thu Dec 07 18:24:31 BRT 2023 - Thu Dec 07 18:24:31 BRT 2023")
+    })
+    public ResponseEntity<BookingDTO> rebook(@PathVariable Long id, @Parameter(hidden = true) @AuthenticationPrincipal UserDetails currentUserDetails) {
+        var rebookedBooking = service.rebook(id, currentUserDetails);
+        return ResponseEntity.ok().body(rebookedBooking);
+    }
 }
