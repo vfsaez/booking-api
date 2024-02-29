@@ -1,12 +1,10 @@
 package com.victorsaez.bookingapi.services;
 
 import com.victorsaez.bookingapi.config.CustomUserDetails;
-import com.victorsaez.bookingapi.dto.BookingDTO;
 import com.victorsaez.bookingapi.dto.UserDTO;
 import com.victorsaez.bookingapi.dto.requests.SignupRequest;
 import com.victorsaez.bookingapi.entities.User;
 import com.victorsaez.bookingapi.exceptions.AccessDeniedException;
-import com.victorsaez.bookingapi.exceptions.ClientNotFoundException;
 import com.victorsaez.bookingapi.exceptions.UserNotFoundException;
 import com.victorsaez.bookingapi.exceptions.UsernameNotAvailableException;
 import com.victorsaez.bookingapi.mappers.UserMapper;

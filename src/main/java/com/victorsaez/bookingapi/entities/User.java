@@ -28,9 +28,9 @@ public class User {
 
     private String roles;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "owner")
-    private List<Client> clients = new ArrayList<>();
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "professor")
+    private List<Student> students = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "owner")
-    private List<Property> properties = new ArrayList<>();
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "professor")
+    private List<Course> courses = new ArrayList<>();
 }

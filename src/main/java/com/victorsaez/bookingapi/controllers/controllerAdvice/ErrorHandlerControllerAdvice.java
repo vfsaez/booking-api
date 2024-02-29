@@ -1,9 +1,6 @@
 package com.victorsaez.bookingapi.controllers.controllerAdvice;
 
-import com.victorsaez.bookingapi.exceptions.AccessDeniedException;
-import com.victorsaez.bookingapi.exceptions.NotAvailableException;
-import com.victorsaez.bookingapi.exceptions.NotFoundException;
-import com.victorsaez.bookingapi.exceptions.UsernameNotAvailableException;
+import com.victorsaez.bookingapi.exceptions.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
@@ -30,9 +27,11 @@ class ErrorHandlerControllerAdvice {
             ConstraintViolationException e) {
         ValidationErrorResponse error = new ValidationErrorResponse();
         error.setStatus(HttpStatus.BAD_REQUEST.value());
-        for (var violation : e.getConstraintViolations()) {
-            error.getViolations().add(
-                    new Violation(violation.getPropertyPath().toString(), violation.getMessage()));
+        if (!e.getConstraintViolations().isEmpty()) {
+            for (var violation : e.getConstraintViolations()) {
+                error.getViolations().add(
+                        new Violation(violation.getPropertyPath().toString(), violation.getMessage()));
+            }
         }
         return error;
     }
@@ -82,6 +81,18 @@ class ErrorHandlerControllerAdvice {
         error.setStatus(HttpStatus.BAD_REQUEST.value());
         error.getViolations().add(
                 new Violation("BadRequest", e.getMessage()));
+        return error;
+    }
+
+    @ExceptionHandler(AgeRequirementsException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    ValidationErrorResponse onAgeRequirementsException(
+            Exception e) {
+        ValidationErrorResponse error = new ValidationErrorResponse();
+        error.setStatus(HttpStatus.BAD_REQUEST.value());
+        error.getViolations().add(
+                new Violation("AgeRequirement", e.getMessage()));
         return error;
     }
 

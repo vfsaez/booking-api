@@ -51,4 +51,5 @@ public class UserServiceTest {
         assertEquals(1, users.getTotalElements());
         assertEquals(1L, users.getContent().get(0).getId());
     }
+
 }
