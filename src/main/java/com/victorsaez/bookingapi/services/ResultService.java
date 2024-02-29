@@ -73,6 +73,10 @@ public class ResultService {
         Result existingResult = repository.findById(id)
                 .orElseThrow(() -> new ResultNotFoundException(id));
 
+        if (resultDto.getGrade() != null) {
+            existingResult.setGrade(resultDto.getGrade());
+        }
+
         if (!customCurrentUserDetails.isAdmin()
                 && !existingResult.getProfessor().getId().equals(customCurrentUserDetails.getId())) {
             throw new AccessDeniedException(id, customCurrentUserDetails.getId());
@@ -91,6 +95,7 @@ public class ResultService {
         Course course = courseRepository.findById(resultDto.getCourseId())
                 .orElseThrow(() -> new CourseNotFoundException(resultDto.getCourseId()));
 
+        existingResult.setGrade(resultDto.getGrade());
 
         if (!customCurrentUserDetails.isAdmin()
                 && !existingResult.getProfessor().getId().equals(customCurrentUserDetails.getId())) {

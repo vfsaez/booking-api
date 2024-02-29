@@ -1,19 +1,15 @@
 ### Swagger Documentation:
 
-This is a simple REST API for the management and booking of properties
+This is a simple REST API for the management of students, courses and courses results
+
+Users are the professors -- they can manage their own courses and students
+
+Admins would be the Staff (e.g: Principal) -- they can manage other professors resources
+
 The API is documented using Swagger and the documentation is available at the /swagger-ui.html endpoint.
 
 http://localhost:8080/swagger-ui.html
 
-
-### Cancellations and Rebookings:
-- Cancellations can be made through a PUT/PATCH request to the /bookings/{id} endpoint (updating its status to "CANCELLED") or a POST request to the /bookings/{id}/cancel endpoint
-
-
-- Rebookings can be made through a PUT/PATCH request to the /bookings/{id} endpoint (updating its status to "BOOKED", may also change its dates) or a POST request to the /bookings/{id}/rebook endpoint
-
-
-- Blocks can also have its status updated through a PUT/PATCH request to the /blocks/{id} endpoint (e.g. to mark a block as "CANCELLED" or "BLOCKED")
 
 ___________________________
 

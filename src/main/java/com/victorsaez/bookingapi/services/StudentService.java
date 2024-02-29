@@ -63,6 +63,9 @@ public class StudentService {
                 .orElseThrow(() -> new StudentNotFoundException(studentDto.getId()));
 
         existingStudent.setName(studentDto.getName());
+        existingStudent.setFamilyName(studentDto.getFamilyName());
+        existingStudent.setEmail(studentDto.getEmail());
+        existingStudent.setDateOfBirth(studentDto.getDateOfBirth());
 
         if (!customCurrentUserDetails.isAdmin()
                 && !existingStudent.getProfessor().getId().equals(customCurrentUserDetails.getId())) {
@@ -82,7 +85,15 @@ public class StudentService {
         if (studentDto.getName() != null) {
             existingStudent.setName(studentDto.getName());
         }
-        // Add similar checks for other updatable fields
+        if (studentDto.getFamilyName() != null) {
+            existingStudent.setFamilyName(studentDto.getFamilyName());
+        }
+        if (studentDto.getEmail() != null) {
+            existingStudent.setEmail(studentDto.getEmail());
+        }
+        if (studentDto.getDateOfBirth() != null) {
+            existingStudent.setDateOfBirth(studentDto.getDateOfBirth());
+        }
 
         if (!customCurrentUserDetails.isAdmin()
                 && !existingStudent.getProfessor().getId().equals(customCurrentUserDetails.getId())) {

@@ -1,6 +1,7 @@
 package com.victorsaez.bookingapi.services;
 
 import com.victorsaez.bookingapi.config.CustomUserDetails;
+import com.victorsaez.bookingapi.dto.CourseDTO;
 import com.victorsaez.bookingapi.dto.ResultDTO;
 import com.victorsaez.bookingapi.entities.Course;
 import com.victorsaez.bookingapi.entities.Result;
@@ -138,5 +139,24 @@ public class ResultServiceTest {
         assertThrows(CourseNotFoundException.class, () -> resultService.update(resultDto, customUserDetails));
     }
 
+    @Test
+    public void shouldReturnAllResultsByProfessorId() {
+        Result result = new Result();
+        result.setId(1L);
+        // set other fields as necessary
+        CustomUserDetails mockUserDetails = Mockito.mock(CustomUserDetails.class);
+        Mockito.when(mockUserDetails.getUsername()).thenReturn("testUser");
+        Mockito.when(mockUserDetails.getId()).thenReturn(1L);
+        Mockito.when(mockUserDetails.isAdmin()).thenReturn(false);
+        List<Result> resultList = Collections.singletonList(result);
+        Page<Result> resultPage = new PageImpl<>(resultList);
+
+        when(resultRepository.findAllByProfessorId(anyLong(),any(Pageable.class))).thenReturn(resultPage);
+
+        Page<ResultDTO> results = resultService.findAll(Pageable.unpaged(), mockUserDetails);
+
+        assertEquals(1, results.getTotalElements());
+        assertEquals(1L, results.getContent().get(0).getId());
+    }
 
 }
