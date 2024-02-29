@@ -5,6 +5,7 @@ import com.victorsaez.bookingapi.dto.CourseDTO;
 import com.victorsaez.bookingapi.dto.StudentDTO;
 import com.victorsaez.bookingapi.entities.Course;
 import com.victorsaez.bookingapi.entities.Student;
+import com.victorsaez.bookingapi.exceptions.AgeRequirementsException;
 import com.victorsaez.bookingapi.repositories.StudentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.validation.ConstraintViolationException;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -46,7 +48,9 @@ public class StudentServiceTest {
         student.setName("Charles");
         student.setFamilyName("Demo");
         student.setEmail("efake@gmfake.com");
-        student.setDateOfBirth(new Date());
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(1990, 1, 1);
+        student.setDateOfBirth(calendar.getTime());
         when(studentRepository.findById(1L)).thenReturn(java.util.Optional.of(student));
     }
 
@@ -85,5 +89,36 @@ public class StudentServiceTest {
 
         assertEquals(1, students.getTotalElements());
         assertEquals(1L, students.getContent().get(0).getId());
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenEmailIsInvalidOnInsert() throws AgeRequirementsException {
+        StudentDTO studentDto = new StudentDTO();
+        studentDto.setEmail("invalidEmail");
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(1990, 1, 1);
+        studentDto.setDateOfBirth(calendar.getTime());
+
+        CustomUserDetails mockUserDetails = Mockito.mock(CustomUserDetails.class);
+        Mockito.when(mockUserDetails.getUsername()).thenReturn("testUser");
+        Mockito.when(mockUserDetails.getId()).thenReturn(1L);
+        Mockito.when(mockUserDetails.isAdmin()).thenReturn(false);
+
+        assertThrows(ConstraintViolationException.class, () -> studentService.insert(studentDto, mockUserDetails));
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenAgerRequirementIsInvalidOnPatch() throws AgeRequirementsException {
+        StudentDTO studentDto = new StudentDTO();
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(2020, 1, 1);
+        studentDto.setDateOfBirth(calendar.getTime());
+
+        CustomUserDetails mockUserDetails = Mockito.mock(CustomUserDetails.class);
+        Mockito.when(mockUserDetails.getUsername()).thenReturn("testUser");
+        Mockito.when(mockUserDetails.getId()).thenReturn(1L);
+        Mockito.when(mockUserDetails.isAdmin()).thenReturn(false);
+
+        assertThrows(AgeRequirementsException.class, () -> studentService.patch(1L, studentDto, mockUserDetails));
     }
 }

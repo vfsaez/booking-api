@@ -4,6 +4,7 @@ import com.victorsaez.bookingapi.config.CustomUserDetails;
 import com.victorsaez.bookingapi.dto.StudentDTO;
 import com.victorsaez.bookingapi.entities.Student;
 import com.victorsaez.bookingapi.exceptions.AccessDeniedException;
+import com.victorsaez.bookingapi.exceptions.AgeRequirementsException;
 import com.victorsaez.bookingapi.exceptions.StudentNotFoundException;
 import com.victorsaez.bookingapi.mappers.StudentMapper;
 import com.victorsaez.bookingapi.repositories.StudentRepository;
@@ -13,6 +14,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Set;
 
 @Service
 public class StudentService {
@@ -47,9 +56,24 @@ public class StudentService {
         }).orElseThrow(() -> new StudentNotFoundException(id)));
     }
 
-    public StudentDTO insert(StudentDTO studentDto, UserDetails currentUserDetails) {
+    public StudentDTO insert(StudentDTO studentDto, UserDetails currentUserDetails) throws AgeRequirementsException {
         CustomUserDetails customCurrentUserDetails = (CustomUserDetails) currentUserDetails;
         Student studentToSave = studentMapper.studentDTOtoStudent(studentDto);
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.YEAR, -10);
+
+        if(studentToSave.getDateOfBirth() == null || studentToSave.getDateOfBirth().after(calendar.getTime())) {
+            throw new AgeRequirementsException();
+        }
+
+        if (studentDto.getEmail() != null) {
+            Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+            Set<ConstraintViolation<StudentDTO>> violations = validator.validateProperty(studentDto, "email");
+            if (!violations.isEmpty()) {
+                throw new ConstraintViolationException(violations);
+            }
+            studentToSave.setEmail(studentDto.getEmail());
+        }
 
         studentToSave.setProfessor(((CustomUserDetails) currentUserDetails).getUser());
         Student savedStudent = repository.save(studentToSave);
@@ -57,15 +81,30 @@ public class StudentService {
         return studentMapper.studentToStudentDTO(savedStudent);
     }
 
-    public StudentDTO update(StudentDTO studentDto, UserDetails currentUserDetails) {
+    public StudentDTO update(StudentDTO studentDto, UserDetails currentUserDetails) throws AgeRequirementsException {
         CustomUserDetails customCurrentUserDetails = (CustomUserDetails) currentUserDetails;
         Student existingStudent = repository.findById(studentDto.getId())
                 .orElseThrow(() -> new StudentNotFoundException(studentDto.getId()));
 
         existingStudent.setName(studentDto.getName());
         existingStudent.setFamilyName(studentDto.getFamilyName());
-        existingStudent.setEmail(studentDto.getEmail());
         existingStudent.setDateOfBirth(studentDto.getDateOfBirth());
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.YEAR, -10);
+
+        if(existingStudent.getDateOfBirth() == null || existingStudent.getDateOfBirth().after(calendar.getTime())) {
+            throw new AgeRequirementsException();
+        }
+
+        if (studentDto.getEmail() != null) {
+            Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+            Set<ConstraintViolation<StudentDTO>> violations = validator.validateProperty(studentDto, "email");
+            if (!violations.isEmpty()) {
+                throw new ConstraintViolationException(violations);
+            }
+            existingStudent.setEmail(studentDto.getEmail());
+        }
 
         if (!customCurrentUserDetails.isAdmin()
                 && !existingStudent.getProfessor().getId().equals(customCurrentUserDetails.getId())) {
@@ -77,7 +116,7 @@ public class StudentService {
         return studentMapper.studentToStudentDTO(updatedStudent);
     }
 
-    public StudentDTO patch(Long id, StudentDTO studentDto, UserDetails currentUserDetails) {
+    public StudentDTO patch(Long id, StudentDTO studentDto, UserDetails currentUserDetails) throws AgeRequirementsException {
         CustomUserDetails customCurrentUserDetails = (CustomUserDetails) currentUserDetails;
         Student existingStudent = repository.findById(id)
                 .orElseThrow(() -> new StudentNotFoundException(id));
@@ -88,11 +127,25 @@ public class StudentService {
         if (studentDto.getFamilyName() != null) {
             existingStudent.setFamilyName(studentDto.getFamilyName());
         }
+
         if (studentDto.getEmail() != null) {
+            Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+            Set<ConstraintViolation<StudentDTO>> violations = validator.validateProperty(studentDto, "email");
+            if (!violations.isEmpty()) {
+                throw new ConstraintViolationException(violations);
+            }
             existingStudent.setEmail(studentDto.getEmail());
         }
+
         if (studentDto.getDateOfBirth() != null) {
             existingStudent.setDateOfBirth(studentDto.getDateOfBirth());
+        }
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.YEAR, -10);
+
+        if(existingStudent.getDateOfBirth() == null || existingStudent.getDateOfBirth().after(calendar.getTime())) {
+            throw new AgeRequirementsException();
         }
 
         if (!customCurrentUserDetails.isAdmin()

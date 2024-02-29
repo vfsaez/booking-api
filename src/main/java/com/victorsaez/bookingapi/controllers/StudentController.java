@@ -1,6 +1,7 @@
 package com.victorsaez.bookingapi.controllers;
 
 import com.victorsaez.bookingapi.dto.StudentDTO;
+import com.victorsaez.bookingapi.exceptions.AgeRequirementsException;
 import com.victorsaez.bookingapi.services.StudentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -60,7 +61,7 @@ public class StudentController {
             @ApiResponse(responseCode =  "201", description = "Student created with success."),
             @ApiResponse(responseCode =  "400", description = "Invalid request.")
     })
-    public ResponseEntity<StudentDTO> insert(@RequestBody @Valid StudentDTO student, @Parameter(hidden = true) @AuthenticationPrincipal UserDetails currentUserDetails) {
+    public ResponseEntity<StudentDTO> insert(@RequestBody @Valid StudentDTO student, @Parameter(hidden = true) @AuthenticationPrincipal UserDetails currentUserDetails) throws AgeRequirementsException {
         var createdStudent = service.insert(student, currentUserDetails);
         var uri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -79,7 +80,7 @@ public class StudentController {
             @ApiResponse(responseCode = "404", description = "Student not found."),
             @ApiResponse(responseCode = "400", description = "Invalid request.")
     })
-    public ResponseEntity<StudentDTO> update(@PathVariable Long id, @RequestBody @Valid StudentDTO student, @Parameter(hidden = true) @AuthenticationPrincipal UserDetails currentUserDetails) {
+    public ResponseEntity<StudentDTO> update(@PathVariable Long id, @RequestBody @Valid StudentDTO student, @Parameter(hidden = true) @AuthenticationPrincipal UserDetails currentUserDetails) throws AgeRequirementsException {
         student.setId(id);
         var updatedStudent = service.update(student, currentUserDetails);
         return ResponseEntity.ok().body(updatedStudent);
@@ -92,7 +93,7 @@ public class StudentController {
             @ApiResponse(responseCode = "404", description = "Student not found."),
             @ApiResponse(responseCode = "400", description = "Invalid request.")
     })
-    public ResponseEntity<StudentDTO> patch(@PathVariable Long id, @RequestBody StudentDTO studentDTO, @Parameter(hidden = true) @AuthenticationPrincipal UserDetails currentUserDetails) {
+    public ResponseEntity<StudentDTO> patch(@PathVariable Long id, @RequestBody StudentDTO studentDTO, @Parameter(hidden = true) @AuthenticationPrincipal UserDetails currentUserDetails) throws AgeRequirementsException {
         StudentDTO updatedDto = service.patch(id, studentDTO, currentUserDetails);
         return ResponseEntity.ok(updatedDto);
     }

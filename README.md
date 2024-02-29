@@ -32,11 +32,11 @@ It will also start the docker container for the app
 ### PREPOPULATED USERS
 ```shell script
 #DEMO USER
-username: user
+username: string
 password: user
 
 #DEMO ADMIN
-username: admin
+username: donovan
 password: user
 ```
 

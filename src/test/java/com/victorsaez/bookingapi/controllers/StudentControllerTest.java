@@ -2,6 +2,7 @@ package com.victorsaez.bookingapi.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.victorsaez.bookingapi.dto.StudentDTO;
+import com.victorsaez.bookingapi.exceptions.AgeRequirementsException;
 import com.victorsaez.bookingapi.services.StudentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,7 +41,7 @@ public class StudentControllerTest {
     private StudentService studentService;
 
     @BeforeEach
-    public void setup() {
+    public void setup() throws AgeRequirementsException {
         StudentDTO studentDto = new StudentDTO();
         studentDto.setId(1L);
         studentDto.setName("Charles");
@@ -58,6 +59,7 @@ public class StudentControllerTest {
         when(studentService.findById(anyLong(), any(UserDetails.class))).thenReturn(studentDto);
         when(studentService.insert(any(StudentDTO.class), any(UserDetails.class))).thenReturn(studentDto);
         when(studentService.update(any(StudentDTO.class), any(UserDetails.class))).thenReturn(studentDto);
+        when(studentService.patch(anyLong(), any(StudentDTO.class), any(UserDetails.class))).thenReturn(studentDto);
         Mockito.doNothing().when(studentService).delete(anyLong(), any(UserDetails.class));
     }
 
