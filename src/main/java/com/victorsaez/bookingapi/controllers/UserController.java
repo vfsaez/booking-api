@@ -1,6 +1,5 @@
 package com.victorsaez.bookingapi.controllers;
 
-import com.victorsaez.bookingapi.dto.BlockDTO;
 import com.victorsaez.bookingapi.dto.UserDTO;
 import com.victorsaez.bookingapi.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;

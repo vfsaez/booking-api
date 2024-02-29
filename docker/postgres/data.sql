@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 16.1 (Debian 16.1-1.pgdg120+1)
--- Dumped by pg_dump version 16.1 (Debian 16.1-1.pgdg120+1)
+-- Dumped from database version 16.2 (Debian 16.2-1.pgdg120+2)
+-- Dumped by pg_dump version 16.2 (Debian 16.2-1.pgdg120+2)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -21,99 +21,23 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
--- Name: tb_block; Type: TABLE; Schema: public; Owner: postgres
+-- Name: tb_course; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.tb_block (
-                                 id bigint NOT NULL,
-                                 end_date timestamp without time zone NOT NULL,
-                                 start_date timestamp without time zone NOT NULL,
-                                 status integer NOT NULL,
-                                 property_id bigint,
-                                 owner_id bigint NOT NULL
-);
-
-
-ALTER TABLE public.tb_block OWNER TO postgres;
-
---
--- Name: tb_block_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE public.tb_block_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE public.tb_block_id_seq OWNER TO postgres;
-
---
--- Name: tb_block_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE public.tb_block_id_seq OWNED BY public.tb_block.id;
-
-
---
--- Name: tb_booking; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.tb_booking (
-                                   id bigint NOT NULL,
-                                   end_date timestamp without time zone NOT NULL,
-                                   price double precision,
-                                   start_date timestamp without time zone NOT NULL,
-                                   status integer NOT NULL,
-                                   client_id bigint,
-                                   property_id bigint,
-                                   owner_id bigint
-);
-
-
-ALTER TABLE public.tb_booking OWNER TO postgres;
-
---
--- Name: tb_booking_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE public.tb_booking_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE public.tb_booking_id_seq OWNER TO postgres;
-
---
--- Name: tb_booking_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE public.tb_booking_id_seq OWNED BY public.tb_booking.id;
-
-
---
--- Name: tb_client; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.tb_client (
+CREATE TABLE public.tb_course (
                                   id bigint NOT NULL,
                                   name character varying(255) NOT NULL,
-                                  owner_id bigint
+                                  professor_id bigint NOT NULL
 );
 
 
-ALTER TABLE public.tb_client OWNER TO postgres;
+ALTER TABLE public.tb_course OWNER TO postgres;
 
 --
--- Name: tb_client_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: tb_course_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
-CREATE SEQUENCE public.tb_client_id_seq
+CREATE SEQUENCE public.tb_course_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -121,34 +45,35 @@ CREATE SEQUENCE public.tb_client_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.tb_client_id_seq OWNER TO postgres;
+ALTER SEQUENCE public.tb_course_id_seq OWNER TO postgres;
 
 --
--- Name: tb_client_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: tb_course_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
-ALTER SEQUENCE public.tb_client_id_seq OWNED BY public.tb_client.id;
+ALTER SEQUENCE public.tb_course_id_seq OWNED BY public.tb_course.id;
 
 
 --
--- Name: tb_property; Type: TABLE; Schema: public; Owner: postgres
+-- Name: tb_result; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.tb_property (
-                                    id bigint NOT NULL,
-                                    name character varying(255) NOT NULL,
-                                    price double precision NOT NULL,
-                                    owner_id bigint
+CREATE TABLE public.tb_result (
+                                  id bigint NOT NULL,
+                                  grade integer NOT NULL,
+                                  course_id bigint NOT NULL,
+                                  professor_id bigint NOT NULL,
+                                  student_id bigint
 );
 
 
-ALTER TABLE public.tb_property OWNER TO postgres;
+ALTER TABLE public.tb_result OWNER TO postgres;
 
 --
--- Name: tb_property_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: tb_result_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
-CREATE SEQUENCE public.tb_property_id_seq
+CREATE SEQUENCE public.tb_result_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -156,13 +81,50 @@ CREATE SEQUENCE public.tb_property_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.tb_property_id_seq OWNER TO postgres;
+ALTER SEQUENCE public.tb_result_id_seq OWNER TO postgres;
 
 --
--- Name: tb_property_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: tb_result_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
-ALTER SEQUENCE public.tb_property_id_seq OWNED BY public.tb_property.id;
+ALTER SEQUENCE public.tb_result_id_seq OWNED BY public.tb_result.id;
+
+
+--
+-- Name: tb_student; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.tb_student (
+                                   id bigint NOT NULL,
+                                   date_of_birth timestamp without time zone,
+                                   email character varying(255) NOT NULL,
+                                   family_name character varying(255) NOT NULL,
+                                   name character varying(255) NOT NULL,
+                                   professor_id bigint NOT NULL
+);
+
+
+ALTER TABLE public.tb_student OWNER TO postgres;
+
+--
+-- Name: tb_student_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.tb_student_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.tb_student_id_seq OWNER TO postgres;
+
+--
+-- Name: tb_student_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.tb_student_id_seq OWNED BY public.tb_student.id;
 
 
 --
@@ -202,31 +164,24 @@ ALTER SEQUENCE public.tb_user_id_seq OWNED BY public.tb_user.id;
 
 
 --
--- Name: tb_block id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: tb_course id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.tb_block ALTER COLUMN id SET DEFAULT nextval('public.tb_block_id_seq'::regclass);
-
-
---
--- Name: tb_booking id; Type: DEFAULT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.tb_booking ALTER COLUMN id SET DEFAULT nextval('public.tb_booking_id_seq'::regclass);
+ALTER TABLE ONLY public.tb_course ALTER COLUMN id SET DEFAULT nextval('public.tb_course_id_seq'::regclass);
 
 
 --
--- Name: tb_client id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: tb_result id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.tb_client ALTER COLUMN id SET DEFAULT nextval('public.tb_client_id_seq'::regclass);
+ALTER TABLE ONLY public.tb_result ALTER COLUMN id SET DEFAULT nextval('public.tb_result_id_seq'::regclass);
 
 
 --
--- Name: tb_property id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: tb_student id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.tb_property ALTER COLUMN id SET DEFAULT nextval('public.tb_property_id_seq'::regclass);
+ALTER TABLE ONLY public.tb_student ALTER COLUMN id SET DEFAULT nextval('public.tb_student_id_seq'::regclass);
 
 
 --
@@ -237,51 +192,36 @@ ALTER TABLE ONLY public.tb_user ALTER COLUMN id SET DEFAULT nextval('public.tb_u
 
 
 --
--- Data for Name: tb_block; Type: TABLE DATA; Schema: public; Owner: postgres
+-- Data for Name: tb_course; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.tb_block (id, end_date, start_date, status, property_id, owner_id) FROM stdin;
+COPY public.tb_course (id, name, professor_id) FROM stdin;
+1	Mathematics	1
+2	Applied Sciences	2
 \.
 
 
 --
--- Data for Name: tb_booking; Type: TABLE DATA; Schema: public; Owner: postgres
+-- Data for Name: tb_result; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.tb_booking (id, end_date, price, start_date, status, client_id, property_id, owner_id) FROM stdin;
-5	2023-11-17 10:10:57.205	1500	2023-11-17 10:10:57.205	0	1	1	1
-4	2023-12-17 10:10:57.205	1500	2023-12-17 10:10:57.205	0	1	1	1
-2	2023-12-17 10:10:57.205	1500	2023-12-17 10:10:57.205	1	1	1	1
-3	2023-12-17 10:10:57.205	1500	2023-12-17 10:10:57.205	1	1	1	1
-1	2023-12-17 10:10:57.205	1500	2023-12-17 10:10:57.205	1	1	1	1
-6	2023-11-30 10:10:57.205	1500	2023-11-30 10:10:57.205	0	1	1	1
-16	2023-04-13 15:50:26.788	1500	2023-04-13 15:50:26.788	0	1	1	1
-14	2023-09-13 13:23:34.257	500	2023-09-13 13:23:34.257	0	1	1	1
-13	2023-10-13 13:23:34.257	500	2023-10-13 13:23:34.257	0	1	1	1
-12	2023-10-13 13:23:34.257	500	2023-10-13 13:23:34.257	0	1	1	1
-10	2023-10-13 13:23:34.257	500	2023-10-13 13:23:34.257	0	1	1	1
-11	2023-10-13 13:23:34.257	500	2023-10-13 13:23:34.257	0	1	1	1
-9	2023-10-13 13:23:34.257	500	2023-10-13 13:23:34.257	0	1	1	1
-8	2023-10-13 13:23:34.257	500	2023-10-13 13:23:34.257	0	1	1	1
-7	2023-12-13 13:23:34.257	500	2023-12-13 13:23:34.257	0	1	1	1
+COPY public.tb_result (id, grade, course_id, professor_id, student_id) FROM stdin;
+1	0	1	1	1
+2	1	1	1	2
+3	2	2	2	3
+4	3	2	2	4
 \.
 
 
 --
--- Data for Name: tb_client; Type: TABLE DATA; Schema: public; Owner: postgres
+-- Data for Name: tb_student; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.tb_client (id, name, owner_id) FROM stdin;
-1	Client 1	1
-\.
-
-
---
--- Data for Name: tb_property; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public.tb_property (id, name, price, owner_id) FROM stdin;
-1	Mansion	1500	1
+COPY public.tb_student (id, date_of_birth, email, family_name, name, professor_id) FROM stdin;
+1	2000-02-29 21:55:09.17	john@stringcollege.com	DemoString	John	1
+3	1998-02-28 21:55:09.17	dean@charlescollege.com	DemoCharles	Dean	2
+2	1999-02-28 21:55:09.17	beth@stringcollege.com	DemoString	Beth	1
+4	1997-02-28 21:55:09.17	mary@charlescollege.com	DemoCharles	Mary	2
 \.
 
 
@@ -290,37 +230,31 @@ COPY public.tb_property (id, name, price, owner_id) FROM stdin;
 --
 
 COPY public.tb_user (id, name, password, roles, username) FROM stdin;
-2	admin	$2a$10$1fTsKGQgaY3mLL7iU5WtxuQXI2ZAIVPLaAChmP0DGYZT8HZWB4GAm	ADMIN	admin
-1	user	$2a$10$1fTsKGQgaY3mLL7iU5WtxuQXI2ZAIVPLaAChmP0DGYZT8HZWB4GAm	USER	user
+3	Principal Donovan	$2a$10$1fTsKGQgaY3mLL7iU5WtxuQXI2ZAIVPLaAChmP0DGYZT8HZWB4GAm	ADMIN	donovan
+2	Professor Charles	$2a$10$1fTsKGQgaY3mLL7iU5WtxuQXI2ZAIVPLaAChmP0DGYZT8HZWB4GAm	USER	charles
+1	Professor String	$2a$10$1fTsKGQgaY3mLL7iU5WtxuQXI2ZAIVPLaAChmP0DGYZT8HZWB4GAm	USER	string
 \.
 
 
 --
--- Name: tb_block_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+-- Name: tb_course_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.tb_block_id_seq', 1, false);
-
-
---
--- Name: tb_booking_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('public.tb_booking_id_seq', 16, true);
+SELECT pg_catalog.setval('public.tb_course_id_seq', 2, true);
 
 
 --
--- Name: tb_client_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+-- Name: tb_result_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.tb_client_id_seq', 2, true);
+SELECT pg_catalog.setval('public.tb_result_id_seq', 4, true);
 
 
 --
--- Name: tb_property_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+-- Name: tb_student_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.tb_property_id_seq', 2, true);
+SELECT pg_catalog.setval('public.tb_student_id_seq', 4, true);
 
 
 --
@@ -331,35 +265,27 @@ SELECT pg_catalog.setval('public.tb_user_id_seq', 3, true);
 
 
 --
--- Name: tb_block tb_block_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: tb_course tb_course_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.tb_block
-    ADD CONSTRAINT tb_block_pkey PRIMARY KEY (id);
-
-
---
--- Name: tb_booking tb_booking_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.tb_booking
-    ADD CONSTRAINT tb_booking_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.tb_course
+    ADD CONSTRAINT tb_course_pkey PRIMARY KEY (id);
 
 
 --
--- Name: tb_client tb_client_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: tb_result tb_result_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.tb_client
-    ADD CONSTRAINT tb_client_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.tb_result
+    ADD CONSTRAINT tb_result_pkey PRIMARY KEY (id);
 
 
 --
--- Name: tb_property tb_property_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: tb_student tb_student_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.tb_property
-    ADD CONSTRAINT tb_property_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.tb_student
+    ADD CONSTRAINT tb_student_pkey PRIMARY KEY (id);
 
 
 --
@@ -379,59 +305,43 @@ ALTER TABLE ONLY public.tb_user
 
 
 --
--- Name: tb_block fk4gugp0cv7cmp714pxb51hxlk5; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: tb_student fk4dx3lda1671ckqh8eax5rs4p; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.tb_block
-    ADD CONSTRAINT fk4gugp0cv7cmp714pxb51hxlk5 FOREIGN KEY (property_id) REFERENCES public.tb_property(id);
-
-
---
--- Name: tb_client fk667wn59tr8opnrjj5ewa7bx19; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.tb_client
-    ADD CONSTRAINT fk667wn59tr8opnrjj5ewa7bx19 FOREIGN KEY (owner_id) REFERENCES public.tb_user(id);
+ALTER TABLE ONLY public.tb_student
+    ADD CONSTRAINT fk4dx3lda1671ckqh8eax5rs4p FOREIGN KEY (professor_id) REFERENCES public.tb_user(id);
 
 
 --
--- Name: tb_booking fkcd5s5p7l6xafh7xf8wgx51irh; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: tb_result fkialkewwnrym0acfqmm3xl8j5i; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.tb_booking
-    ADD CONSTRAINT fkcd5s5p7l6xafh7xf8wgx51irh FOREIGN KEY (owner_id) REFERENCES public.tb_user(id);
-
-
---
--- Name: tb_property fkdp5kocpdj0epjai29uruewg3m; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.tb_property
-    ADD CONSTRAINT fkdp5kocpdj0epjai29uruewg3m FOREIGN KEY (owner_id) REFERENCES public.tb_user(id);
+ALTER TABLE ONLY public.tb_result
+    ADD CONSTRAINT fkialkewwnrym0acfqmm3xl8j5i FOREIGN KEY (professor_id) REFERENCES public.tb_user(id);
 
 
 --
--- Name: tb_block fkjj2q2un4wjxvquhxrjgyngljx; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: tb_course fkjyc9xu0uy1tuuon44sal2kwxx; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.tb_block
-    ADD CONSTRAINT fkjj2q2un4wjxvquhxrjgyngljx FOREIGN KEY (owner_id) REFERENCES public.tb_user(id);
-
-
---
--- Name: tb_booking fkr4m7qudfn905b9wpvndk1523j; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.tb_booking
-    ADD CONSTRAINT fkr4m7qudfn905b9wpvndk1523j FOREIGN KEY (client_id) REFERENCES public.tb_client(id);
+ALTER TABLE ONLY public.tb_course
+    ADD CONSTRAINT fkjyc9xu0uy1tuuon44sal2kwxx FOREIGN KEY (professor_id) REFERENCES public.tb_user(id);
 
 
 --
--- Name: tb_booking fksn58voqsgs4d79u0bb54kgot6; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: tb_result fkltomx0ac1jej79oc81wv4opyf; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.tb_booking
-    ADD CONSTRAINT fksn58voqsgs4d79u0bb54kgot6 FOREIGN KEY (property_id) REFERENCES public.tb_property(id);
+ALTER TABLE ONLY public.tb_result
+    ADD CONSTRAINT fkltomx0ac1jej79oc81wv4opyf FOREIGN KEY (course_id) REFERENCES public.tb_course(id);
+
+
+--
+-- Name: tb_result fktq3sr2n2sy9fuvafcdur53588; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.tb_result
+    ADD CONSTRAINT fktq3sr2n2sy9fuvafcdur53588 FOREIGN KEY (student_id) REFERENCES public.tb_student(id);
 
 
 --
